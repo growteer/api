@@ -1,0 +1,20 @@
+# GraphQL schema example
+#
+# https://gqlgen.com/getting-started/
+
+type Nonce {
+  value: String!
+}
+
+type Query {
+  nonce(address: String!): Nonce
+  nonces: [Nonce]
+}
+
+input NonceParams {
+  address: String!
+}
+
+type Mutation {
+  generateNonce(input: NonceParams!): Nonce!
+}

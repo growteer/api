@@ -1,0 +1,27 @@
+# Only for local testing!
+version: "3.9"
+services:
+  mongodb:
+    image: mongo:latest
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb:/data/db
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=password
+
+  api:
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    ports:
+      - "8080:80" # Or whatever port your Go service uses
+    depends_on:
+      - mongodb
+    environment:
+      - MONGODB_CONNECTION_STRING=mongodb://admin:password@mongodb:27017/?ssl=false
+
+volumes:
+  mongodb:
