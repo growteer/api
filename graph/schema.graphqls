@@ -1,20 +1,27 @@
-# GraphQL schema example
-#
-# https://gqlgen.com/getting-started/
-
-type Nonce {
-  value: String!
-}
-
 type Query {
   nonce(address: String!): Nonce
   nonces: [Nonce]
 }
 
-input NonceParams {
+type Mutation {
+  generateNonce(input: NonceInput!): Nonce!
+  login(input: LoginInput!): Session!
+}
+
+type Nonce {
+  value: String!
+}
+
+input NonceInput {
   address: String!
 }
 
-type Mutation {
-  generateNonce(input: NonceParams!): Nonce!
+type Session {
+  sessionToken: String!
+}
+
+input LoginInput {
+  address: String!
+  message: String!
+  signature: String!
 }

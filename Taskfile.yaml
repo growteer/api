@@ -1,6 +1,21 @@
 version: "3"
 
+vars:
+  BIN: "{{ .TASKFILE_DIR }}/bin"
+
 tasks:
+  build:
+    cmds:
+      - cmd: |
+          go build \
+            -tags release \
+            -o {{.BIN}}/main \
+            ./cmd/main.go;
+    env:
+      CGO_ENABLED: 0
+      GOOS: linux
+      GOARCH: amd64
+
   run:
     cmds:
       - go run ./cmd/main.go
@@ -12,6 +27,8 @@ tasks:
       MONGO_PASSWORD: password
       MONGO_DB_NAME: api_service
       MONGO_SSL: false
+      JWT_SECRET: baconkilbasa
+      SESSION_TTL_MINUTES: 60
 
   gen:
     cmds:

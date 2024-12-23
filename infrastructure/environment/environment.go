@@ -24,6 +24,7 @@ func Load() *Environment {
 type Environment struct {
 	Mongo MongoEnv
 	Server ServerEnv
+	Token TokenEnv
 }
 
 type MongoEnv struct {
@@ -37,4 +38,9 @@ type MongoEnv struct {
 
 type ServerEnv struct {
 	HTTPPort int `envconfig:"HTTP_PORT,default=8080"`
+}
+
+type TokenEnv struct {
+	JWTSecret string `envconfig:"JWT_SECRET"`
+	SessionTTLMinutes int `envconfig:"SESSION_TTL_MINUTES,default=15"`
 }

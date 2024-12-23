@@ -14,6 +14,7 @@ import (
 	"github.com/growteer/api/graph"
 	"github.com/growteer/api/infrastructure/environment"
 	"github.com/growteer/api/infrastructure/mongodb"
+	"github.com/growteer/api/pkg/gqlutil"
 	"github.com/rs/cors"
 	"github.com/vektah/gqlparser/v2/ast"
 )
@@ -30,8 +31,10 @@ func main() {
 
 
 	db := mongodb.NewDB(env.Mongo)
-	resolver := graph.NewResolver(db)
+	resolver := graph.NewResolver(db, env)
 	server := handler.New(graph.NewExecutableSchema(graph.Config{Resolvers: resolver}))
+	server.SetErrorPresenter(gqlutil.PresentError)
+	server.SetRecoverFunc(gqlutil.Recover)
 
 	server.AddTransport(transport.Options{})
 	server.AddTransport(transport.GET{})

@@ -21,7 +21,9 @@ services:
     depends_on:
       - mongodb
     environment:
-      - MONGODB_CONNECTION_STRING=mongodb://admin:password@mongodb:27017/?ssl=false
+      MONGODB_CONNECTION_STRING: mongodb://admin:password@mongodb:27017/?ssl=false
+      JWT_SECRET: baconkilbasa
+      SESSION_TTL_MINUTES: 60
 
 volumes:
   mongodb:
