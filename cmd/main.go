@@ -10,14 +10,24 @@ import (
 	"github.com/99designs/gqlgen/graphql/handler/lru"
 	"github.com/99designs/gqlgen/graphql/handler/transport"
 	"github.com/99designs/gqlgen/graphql/playground"
+	"github.com/go-chi/chi/v5"
 	"github.com/growteer/api/graph"
 	"github.com/growteer/api/infrastructure/environment"
 	"github.com/growteer/api/infrastructure/mongodb"
+	"github.com/rs/cors"
 	"github.com/vektah/gqlparser/v2/ast"
 )
 
 func main() {
 	env := environment.Load()
+
+	router := chi.NewRouter()
+	router.Use(cors.New(cors.Options{
+		AllowedOrigins:   []string{"*"},
+		AllowedMethods:   []string{"GET", "POST", "OPTIONS"},
+		AllowCredentials: true,
+	}).Handler)
+
 
 	db := mongodb.NewDB(env.Mongo)
 	resolver := graph.NewResolver(db)
@@ -34,13 +44,13 @@ func main() {
 		Cache: lru.New[string](100),
 	})
 
-	http.Handle("/", playground.Handler("GraphQL playground", "/query"))
-	http.Handle("/query", server)
+	router.Handle("/", playground.Handler("GraphQL playground", "/query"))
+	router.Handle("/query", server)
 
 	port := env.Server.HTTPPort
 	slog.Info(fmt.Sprintf("connect on port %d for GraphQL playground", port))
 
-	err := http.ListenAndServe(fmt.Sprintf(":%d", port), nil)
+	err := http.ListenAndServe(fmt.Sprintf(":%d", port), router)
 	if err != nil && err != http.ErrServerClosed {
 		slog.Error("server unexpectedly shut down", "error", err)
 	} else {
