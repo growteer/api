@@ -2,6 +2,12 @@
 
 package model
 
+type LoginInput struct {
+	Address   string `json:"address"`
+	Message   string `json:"message"`
+	Signature string `json:"signature"`
+}
+
 type Mutation struct {
 }
 
@@ -9,9 +15,13 @@ type Nonce struct {
 	Value string `json:"value"`
 }
 
-type NonceParams struct {
+type NonceInput struct {
 	Address string `json:"address"`
 }
 
 type Query struct {
+}
+
+type Session struct {
+	SessionToken string `json:"sessionToken"`
 }
