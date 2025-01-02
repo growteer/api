@@ -14,6 +14,7 @@ import (
 const nonce_length = 32
 
 type Repository interface {
+	GetByAddress(ctx context.Context, address string) (string, error)
 	Save(ctx context.Context, address, nonce string) error
 }
 
@@ -34,6 +35,15 @@ func NewService(repo Repository, tokenProvider TokenProvider) *Service {
 }
 
 func (s *Service) Login(ctx context.Context, address, message string, signature []byte) (sessionToken string, err error) {
+	nonce, err := s.repo.GetByAddress(ctx, address)
+	if err != nil {
+		return "", err
+	}
+
+	if !strings.Contains(message, nonce) {
+		return "", fmt.Errorf("message does not contain the correct nonce")
+	}
+
 	addressFromSig, err := ethereum.GetAddressFromSignature(message, signature)
 	if err != nil {
 		return "", err

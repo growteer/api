@@ -39,6 +39,17 @@ func NewRepository(db *mongo.Database) (*repository, error) {
 	return repo, nil
 }
 
+func (r *repository) GetByAddress(ctx context.Context, address string) (string, error) {
+	var result dao
+
+	err := r.nonces.FindOne(ctx, bson.M{"address": address}).Decode(&result)
+	if err != nil {
+		return "", err
+	}
+
+	return result.Nonce, nil
+}
+
 func (r *repository) Save(ctx context.Context, address, nonce string) error {
 	newRecord := dao{
 		Address: address,
