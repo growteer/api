@@ -2,7 +2,7 @@ package graph
 
 import (
 	"github.com/growteer/api/infrastructure/environment"
-	"github.com/growteer/api/infrastructure/jwt"
+	"github.com/growteer/api/infrastructure/tokens"
 	"github.com/growteer/api/internal/authn"
 	"go.mongodb.org/mongo-driver/mongo"
 )
@@ -16,7 +16,7 @@ type Resolver struct{
 }
 
 func NewResolver(db *mongo.Database, env *environment.Environment) *Resolver {
-	tokenProvider := jwt.NewTokenProvider(env.Token.JWTSecret, env.Token.SessionTTLMinutes)
+	tokenProvider := tokens.NewProvider(env.Token.JWTSecret, env.Token.SessionTTLMinutes, env.Token.RefreshTTLMinutes)
 
 	authnRepo, err := authn.NewRepository(db)
 	if err != nil {

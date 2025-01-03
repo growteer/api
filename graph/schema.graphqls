@@ -1,27 +1,33 @@
 type Query {
-  nonce(address: String!): Nonce
-  nonces: [Nonce]
+  nonce(address: String!): NonceResult!
+  nonces: [NonceResult]
 }
 
 type Mutation {
-  generateNonce(input: NonceInput!): Nonce!
-  login(input: LoginInput!): Session!
+  generateNonce(input: NonceInput!): NonceResult!
+  login(input: LoginInput!): AuthResult!
+  refresh(input: RefreshInput): AuthResult!
 }
 
-type Nonce {
-  value: String!
+type NonceResult {
+  nonce: String!
 }
 
 input NonceInput {
   address: String!
 }
 
-type Session {
+type AuthResult {
   sessionToken: String!
+  refreshToken: String!
 }
 
 input LoginInput {
   address: String!
   message: String!
   signature: String!
+}
+
+input RefreshInput {
+  refreshToken: String!
 }

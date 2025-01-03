@@ -43,4 +43,5 @@ type ServerEnv struct {
 type TokenEnv struct {
 	JWTSecret string `envconfig:"JWT_SECRET"`
 	SessionTTLMinutes int `envconfig:"SESSION_TTL_MINUTES,default=15"`
+	RefreshTTLMinutes int `envconfig:"REFRESH_TTL_MINUTES,default=10080"` // Default = One Week
 }
