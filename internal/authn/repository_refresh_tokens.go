@@ -2,6 +2,7 @@ package authn
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
@@ -15,6 +16,10 @@ type daoRefreshToken struct {
 }
 
 func (r *repository) SaveRefreshToken(ctx context.Context, address, token string) error {
+	if !IsValidEthereumAddress(address) {
+		return fmt.Errorf("invalid ethereum address passed to SaveRefreshToken: %s", address)
+	}
+
 	newRecord := daoRefreshToken{
 		Address: address,
 		Token: token,
@@ -28,6 +33,10 @@ func (r *repository) SaveRefreshToken(ctx context.Context, address, token string
 }
 
 func (r *repository) GetRefreshTokenByAddress(ctx context.Context, address string) (string, error) {
+	if !IsValidEthereumAddress(address) {
+		return "", fmt.Errorf("invalid ethereum address passed to GetRefreshTokenByAddress: %s", address)
+	}
+
 	var result daoRefreshToken
 
 	err := r.refreshTokens.FindOne(ctx, bson.M{"address": address}).Decode(&result)
