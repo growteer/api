@@ -47,32 +47,35 @@ type DirectiveRoot struct {
 }
 
 type ComplexityRoot struct {
+	AuthResult struct {
+		RefreshToken func(childComplexity int) int
+		SessionToken func(childComplexity int) int
+	}
+
 	Mutation struct {
 		GenerateNonce func(childComplexity int, input model.NonceInput) int
 		Login         func(childComplexity int, input model.LoginInput) int
+		Refresh       func(childComplexity int, input *model.RefreshInput) int
 	}
 
-	Nonce struct {
-		Value func(childComplexity int) int
+	NonceResult struct {
+		Nonce func(childComplexity int) int
 	}
 
 	Query struct {
 		Nonce  func(childComplexity int, address string) int
 		Nonces func(childComplexity int) int
 	}
-
-	Session struct {
-		SessionToken func(childComplexity int) int
-	}
 }
 
 type MutationResolver interface {
-	GenerateNonce(ctx context.Context, input model.NonceInput) (*model.Nonce, error)
-	Login(ctx context.Context, input model.LoginInput) (*model.Session, error)
+	GenerateNonce(ctx context.Context, input model.NonceInput) (*model.NonceResult, error)
+	Login(ctx context.Context, input model.LoginInput) (*model.AuthResult, error)
+	Refresh(ctx context.Context, input *model.RefreshInput) (*model.AuthResult, error)
 }
 type QueryResolver interface {
-	Nonce(ctx context.Context, address string) (*model.Nonce, error)
-	Nonces(ctx context.Context) ([]*model.Nonce, error)
+	Nonce(ctx context.Context, address string) (*model.NonceResult, error)
+	Nonces(ctx context.Context) ([]*model.NonceResult, error)
 }
 
 type executableSchema struct {
@@ -93,6 +96,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 	ec := executionContext{nil, e, 0, 0, nil}
 	_ = ec
 	switch typeName + "." + field {
+
+	case "AuthResult.refreshToken":
+		if e.complexity.AuthResult.RefreshToken == nil {
+			break
+		}
+
+		return e.complexity.AuthResult.RefreshToken(childComplexity), true
+
+	case "AuthResult.sessionToken":
+		if e.complexity.AuthResult.SessionToken == nil {
+			break
+		}
+
+		return e.complexity.AuthResult.SessionToken(childComplexity), true
 
 	case "Mutation.generateNonce":
 		if e.complexity.Mutation.GenerateNonce == nil {
@@ -118,12 +135,24 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.Login(childComplexity, args["input"].(model.LoginInput)), true
 
-	case "Nonce.value":
-		if e.complexity.Nonce.Value == nil {
+	case "Mutation.refresh":
+		if e.complexity.Mutation.Refresh == nil {
 			break
 		}
 
-		return e.complexity.Nonce.Value(childComplexity), true
+		args, err := ec.field_Mutation_refresh_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.Refresh(childComplexity, args["input"].(*model.RefreshInput)), true
+
+	case "NonceResult.nonce":
+		if e.complexity.NonceResult.Nonce == nil {
+			break
+		}
+
+		return e.complexity.NonceResult.Nonce(childComplexity), true
 
 	case "Query.nonce":
 		if e.complexity.Query.Nonce == nil {
@@ -144,13 +173,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.Nonces(childComplexity), true
 
-	case "Session.sessionToken":
-		if e.complexity.Session.SessionToken == nil {
-			break
-		}
-
-		return e.complexity.Session.SessionToken(childComplexity), true
-
 	}
 	return 0, false
 }
@@ -161,6 +183,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 	inputUnmarshalMap := graphql.BuildUnmarshalerMap(
 		ec.unmarshalInputLoginInput,
 		ec.unmarshalInputNonceInput,
+		ec.unmarshalInputRefreshInput,
 	)
 	first := true
 
@@ -323,6 +346,29 @@ func (ec *executionContext) field_Mutation_login_argsInput(
 	return zeroVal, nil
 }
 
+func (ec *executionContext) field_Mutation_refresh_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	arg0, err := ec.field_Mutation_refresh_argsInput(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
+	return args, nil
+}
+func (ec *executionContext) field_Mutation_refresh_argsInput(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (*model.RefreshInput, error) {
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalORefreshInput2ᚖgithubᚗcomᚋgrowteerᚋapiᚋgraphᚋmodelᚐRefreshInput(ctx, tmp)
+	}
+
+	var zeroVal *model.RefreshInput
+	return zeroVal, nil
+}
+
 func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -423,6 +469,94 @@ func (ec *executionContext) field___Type_fields_argsIncludeDeprecated(
 
 // region    **************************** field.gotpl *****************************
 
+func (ec *executionContext) _AuthResult_sessionToken(ctx context.Context, field graphql.CollectedField, obj *model.AuthResult) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AuthResult_sessionToken(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.SessionToken, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_AuthResult_sessionToken(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AuthResult",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AuthResult_refreshToken(ctx context.Context, field graphql.CollectedField, obj *model.AuthResult) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AuthResult_refreshToken(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.RefreshToken, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_AuthResult_refreshToken(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AuthResult",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Mutation_generateNonce(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Mutation_generateNonce(ctx, field)
 	if err != nil {
@@ -449,9 +583,9 @@ func (ec *executionContext) _Mutation_generateNonce(ctx context.Context, field g
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*model.Nonce)
+	res := resTmp.(*model.NonceResult)
 	fc.Result = res
-	return ec.marshalNNonce2ᚖgithubᚗcomᚋgrowteerᚋapiᚋgraphᚋmodelᚐNonce(ctx, field.Selections, res)
+	return ec.marshalNNonceResult2ᚖgithubᚗcomᚋgrowteerᚋapiᚋgraphᚋmodelᚐNonceResult(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_generateNonce(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -462,10 +596,10 @@ func (ec *executionContext) fieldContext_Mutation_generateNonce(ctx context.Cont
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "value":
-				return ec.fieldContext_Nonce_value(ctx, field)
+			case "nonce":
+				return ec.fieldContext_NonceResult_nonce(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type Nonce", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type NonceResult", field.Name)
 		},
 	}
 	defer func() {
@@ -508,9 +642,9 @@ func (ec *executionContext) _Mutation_login(ctx context.Context, field graphql.C
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*model.Session)
+	res := resTmp.(*model.AuthResult)
 	fc.Result = res
-	return ec.marshalNSession2ᚖgithubᚗcomᚋgrowteerᚋapiᚋgraphᚋmodelᚐSession(ctx, field.Selections, res)
+	return ec.marshalNAuthResult2ᚖgithubᚗcomᚋgrowteerᚋapiᚋgraphᚋmodelᚐAuthResult(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_login(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -522,9 +656,11 @@ func (ec *executionContext) fieldContext_Mutation_login(ctx context.Context, fie
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "sessionToken":
-				return ec.fieldContext_Session_sessionToken(ctx, field)
+				return ec.fieldContext_AuthResult_sessionToken(ctx, field)
+			case "refreshToken":
+				return ec.fieldContext_AuthResult_refreshToken(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type Session", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type AuthResult", field.Name)
 		},
 	}
 	defer func() {
@@ -541,8 +677,8 @@ func (ec *executionContext) fieldContext_Mutation_login(ctx context.Context, fie
 	return fc, nil
 }
 
-func (ec *executionContext) _Nonce_value(ctx context.Context, field graphql.CollectedField, obj *model.Nonce) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Nonce_value(ctx, field)
+func (ec *executionContext) _Mutation_refresh(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_refresh(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -555,7 +691,68 @@ func (ec *executionContext) _Nonce_value(ctx context.Context, field graphql.Coll
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Value, nil
+		return ec.resolvers.Mutation().Refresh(rctx, fc.Args["input"].(*model.RefreshInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.AuthResult)
+	fc.Result = res
+	return ec.marshalNAuthResult2ᚖgithubᚗcomᚋgrowteerᚋapiᚋgraphᚋmodelᚐAuthResult(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_refresh(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "sessionToken":
+				return ec.fieldContext_AuthResult_sessionToken(ctx, field)
+			case "refreshToken":
+				return ec.fieldContext_AuthResult_refreshToken(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type AuthResult", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_refresh_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _NonceResult_nonce(ctx context.Context, field graphql.CollectedField, obj *model.NonceResult) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_NonceResult_nonce(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Nonce, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -572,9 +769,9 @@ func (ec *executionContext) _Nonce_value(ctx context.Context, field graphql.Coll
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Nonce_value(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_NonceResult_nonce(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "Nonce",
+		Object:     "NonceResult",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -606,11 +803,14 @@ func (ec *executionContext) _Query_nonce(ctx context.Context, field graphql.Coll
 		return graphql.Null
 	}
 	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
 		return graphql.Null
 	}
-	res := resTmp.(*model.Nonce)
+	res := resTmp.(*model.NonceResult)
 	fc.Result = res
-	return ec.marshalONonce2ᚖgithubᚗcomᚋgrowteerᚋapiᚋgraphᚋmodelᚐNonce(ctx, field.Selections, res)
+	return ec.marshalNNonceResult2ᚖgithubᚗcomᚋgrowteerᚋapiᚋgraphᚋmodelᚐNonceResult(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_nonce(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -621,10 +821,10 @@ func (ec *executionContext) fieldContext_Query_nonce(ctx context.Context, field 
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "value":
-				return ec.fieldContext_Nonce_value(ctx, field)
+			case "nonce":
+				return ec.fieldContext_NonceResult_nonce(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type Nonce", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type NonceResult", field.Name)
 		},
 	}
 	defer func() {
@@ -664,9 +864,9 @@ func (ec *executionContext) _Query_nonces(ctx context.Context, field graphql.Col
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.([]*model.Nonce)
+	res := resTmp.([]*model.NonceResult)
 	fc.Result = res
-	return ec.marshalONonce2ᚕᚖgithubᚗcomᚋgrowteerᚋapiᚋgraphᚋmodelᚐNonce(ctx, field.Selections, res)
+	return ec.marshalONonceResult2ᚕᚖgithubᚗcomᚋgrowteerᚋapiᚋgraphᚋmodelᚐNonceResult(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_nonces(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -677,10 +877,10 @@ func (ec *executionContext) fieldContext_Query_nonces(_ context.Context, field g
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "value":
-				return ec.fieldContext_Nonce_value(ctx, field)
+			case "nonce":
+				return ec.fieldContext_NonceResult_nonce(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type Nonce", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type NonceResult", field.Name)
 		},
 	}
 	return fc, nil
@@ -810,50 +1010,6 @@ func (ec *executionContext) fieldContext_Query___schema(_ context.Context, field
 				return ec.fieldContext___Schema_directives(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type __Schema", field.Name)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Session_sessionToken(ctx context.Context, field graphql.CollectedField, obj *model.Session) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Session_sessionToken(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.SessionToken, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Session_sessionToken(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Session",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
 		},
 	}
 	return fc, nil
@@ -2700,6 +2856,33 @@ func (ec *executionContext) unmarshalInputNonceInput(ctx context.Context, obj in
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputRefreshInput(ctx context.Context, obj interface{}) (model.RefreshInput, error) {
+	var it model.RefreshInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"refreshToken"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "refreshToken":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("refreshToken"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.RefreshToken = data
+		}
+	}
+
+	return it, nil
+}
+
 // endregion **************************** input.gotpl *****************************
 
 // region    ************************** interface.gotpl ***************************
@@ -2707,6 +2890,50 @@ func (ec *executionContext) unmarshalInputNonceInput(ctx context.Context, obj in
 // endregion ************************** interface.gotpl ***************************
 
 // region    **************************** object.gotpl ****************************
+
+var authResultImplementors = []string{"AuthResult"}
+
+func (ec *executionContext) _AuthResult(ctx context.Context, sel ast.SelectionSet, obj *model.AuthResult) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, authResultImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("AuthResult")
+		case "sessionToken":
+			out.Values[i] = ec._AuthResult_sessionToken(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "refreshToken":
+			out.Values[i] = ec._AuthResult_refreshToken(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
 
 var mutationImplementors = []string{"Mutation"}
 
@@ -2741,6 +2968,13 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "refresh":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_refresh(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -2764,19 +2998,19 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 	return out
 }
 
-var nonceImplementors = []string{"Nonce"}
+var nonceResultImplementors = []string{"NonceResult"}
 
-func (ec *executionContext) _Nonce(ctx context.Context, sel ast.SelectionSet, obj *model.Nonce) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, nonceImplementors)
+func (ec *executionContext) _NonceResult(ctx context.Context, sel ast.SelectionSet, obj *model.NonceResult) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, nonceResultImplementors)
 
 	out := graphql.NewFieldSet(fields)
 	deferred := make(map[string]*graphql.FieldSet)
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("Nonce")
-		case "value":
-			out.Values[i] = ec._Nonce_value(ctx, field, obj)
+			out.Values[i] = graphql.MarshalString("NonceResult")
+		case "nonce":
+			out.Values[i] = ec._NonceResult_nonce(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -2825,13 +3059,16 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 		case "nonce":
 			field := field
 
-			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
 				defer func() {
 					if r := recover(); r != nil {
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
 				res = ec._Query_nonce(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
 				return res
 			}
 
@@ -2868,45 +3105,6 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Query___schema(ctx, field)
 			})
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch(ctx)
-	if out.Invalids > 0 {
-		return graphql.Null
-	}
-
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
-
-	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
-			Label:    label,
-			Path:     graphql.GetPath(ctx),
-			FieldSet: dfs,
-			Context:  ctx,
-		})
-	}
-
-	return out
-}
-
-var sessionImplementors = []string{"Session"}
-
-func (ec *executionContext) _Session(ctx context.Context, sel ast.SelectionSet, obj *model.Session) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, sessionImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	deferred := make(map[string]*graphql.FieldSet)
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("Session")
-		case "sessionToken":
-			out.Values[i] = ec._Session_sessionToken(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -3256,6 +3454,20 @@ func (ec *executionContext) ___Type(ctx context.Context, sel ast.SelectionSet, o
 
 // region    ***************************** type.gotpl *****************************
 
+func (ec *executionContext) marshalNAuthResult2githubᚗcomᚋgrowteerᚋapiᚋgraphᚋmodelᚐAuthResult(ctx context.Context, sel ast.SelectionSet, v model.AuthResult) graphql.Marshaler {
+	return ec._AuthResult(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNAuthResult2ᚖgithubᚗcomᚋgrowteerᚋapiᚋgraphᚋmodelᚐAuthResult(ctx context.Context, sel ast.SelectionSet, v *model.AuthResult) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._AuthResult(ctx, sel, v)
+}
+
 func (ec *executionContext) unmarshalNBoolean2bool(ctx context.Context, v interface{}) (bool, error) {
 	res, err := graphql.UnmarshalBoolean(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -3276,37 +3488,23 @@ func (ec *executionContext) unmarshalNLoginInput2githubᚗcomᚋgrowteerᚋapi�
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNNonce2githubᚗcomᚋgrowteerᚋapiᚋgraphᚋmodelᚐNonce(ctx context.Context, sel ast.SelectionSet, v model.Nonce) graphql.Marshaler {
-	return ec._Nonce(ctx, sel, &v)
-}
-
-func (ec *executionContext) marshalNNonce2ᚖgithubᚗcomᚋgrowteerᚋapiᚋgraphᚋmodelᚐNonce(ctx context.Context, sel ast.SelectionSet, v *model.Nonce) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-		return graphql.Null
-	}
-	return ec._Nonce(ctx, sel, v)
-}
-
 func (ec *executionContext) unmarshalNNonceInput2githubᚗcomᚋgrowteerᚋapiᚋgraphᚋmodelᚐNonceInput(ctx context.Context, v interface{}) (model.NonceInput, error) {
 	res, err := ec.unmarshalInputNonceInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNSession2githubᚗcomᚋgrowteerᚋapiᚋgraphᚋmodelᚐSession(ctx context.Context, sel ast.SelectionSet, v model.Session) graphql.Marshaler {
-	return ec._Session(ctx, sel, &v)
+func (ec *executionContext) marshalNNonceResult2githubᚗcomᚋgrowteerᚋapiᚋgraphᚋmodelᚐNonceResult(ctx context.Context, sel ast.SelectionSet, v model.NonceResult) graphql.Marshaler {
+	return ec._NonceResult(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNSession2ᚖgithubᚗcomᚋgrowteerᚋapiᚋgraphᚋmodelᚐSession(ctx context.Context, sel ast.SelectionSet, v *model.Session) graphql.Marshaler {
+func (ec *executionContext) marshalNNonceResult2ᚖgithubᚗcomᚋgrowteerᚋapiᚋgraphᚋmodelᚐNonceResult(ctx context.Context, sel ast.SelectionSet, v *model.NonceResult) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._Session(ctx, sel, v)
+	return ec._NonceResult(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNString2string(ctx context.Context, v interface{}) (string, error) {
@@ -3603,7 +3801,7 @@ func (ec *executionContext) marshalOBoolean2ᚖbool(ctx context.Context, sel ast
 	return res
 }
 
-func (ec *executionContext) marshalONonce2ᚕᚖgithubᚗcomᚋgrowteerᚋapiᚋgraphᚋmodelᚐNonce(ctx context.Context, sel ast.SelectionSet, v []*model.Nonce) graphql.Marshaler {
+func (ec *executionContext) marshalONonceResult2ᚕᚖgithubᚗcomᚋgrowteerᚋapiᚋgraphᚋmodelᚐNonceResult(ctx context.Context, sel ast.SelectionSet, v []*model.NonceResult) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
@@ -3630,7 +3828,7 @@ func (ec *executionContext) marshalONonce2ᚕᚖgithubᚗcomᚋgrowteerᚋapiᚋ
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalONonce2ᚖgithubᚗcomᚋgrowteerᚋapiᚋgraphᚋmodelᚐNonce(ctx, sel, v[i])
+			ret[i] = ec.marshalONonceResult2ᚖgithubᚗcomᚋgrowteerᚋapiᚋgraphᚋmodelᚐNonceResult(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -3644,11 +3842,19 @@ func (ec *executionContext) marshalONonce2ᚕᚖgithubᚗcomᚋgrowteerᚋapiᚋ
 	return ret
 }
 
-func (ec *executionContext) marshalONonce2ᚖgithubᚗcomᚋgrowteerᚋapiᚋgraphᚋmodelᚐNonce(ctx context.Context, sel ast.SelectionSet, v *model.Nonce) graphql.Marshaler {
+func (ec *executionContext) marshalONonceResult2ᚖgithubᚗcomᚋgrowteerᚋapiᚋgraphᚋmodelᚐNonceResult(ctx context.Context, sel ast.SelectionSet, v *model.NonceResult) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
-	return ec._Nonce(ctx, sel, v)
+	return ec._NonceResult(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalORefreshInput2ᚖgithubᚗcomᚋgrowteerᚋapiᚋgraphᚋmodelᚐRefreshInput(ctx context.Context, v interface{}) (*model.RefreshInput, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputRefreshInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalOString2ᚖstring(ctx context.Context, v interface{}) (*string, error) {

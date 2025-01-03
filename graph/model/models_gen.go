@@ -2,6 +2,11 @@
 
 package model
 
+type AuthResult struct {
+	SessionToken string `json:"sessionToken"`
+	RefreshToken string `json:"refreshToken"`
+}
+
 type LoginInput struct {
 	Address   string `json:"address"`
 	Message   string `json:"message"`
@@ -11,17 +16,17 @@ type LoginInput struct {
 type Mutation struct {
 }
 
-type Nonce struct {
-	Value string `json:"value"`
-}
-
 type NonceInput struct {
 	Address string `json:"address"`
+}
+
+type NonceResult struct {
+	Nonce string `json:"nonce"`
 }
 
 type Query struct {
 }
 
-type Session struct {
-	SessionToken string `json:"sessionToken"`
+type RefreshInput struct {
+	RefreshToken string `json:"refreshToken"`
 }

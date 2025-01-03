@@ -13,7 +13,7 @@ import (
 )
 
 // GenerateNonce is the resolver for the generateNonce field.
-func (r *mutationResolver) GenerateNonce(ctx context.Context, input model.NonceInput) (*model.Nonce, error) {
+func (r *mutationResolver) GenerateNonce(ctx context.Context, input model.NonceInput) (*model.NonceResult, error) {
 	if input.Address == "" {
 		return nil, fmt.Errorf("bad request")
 	}
@@ -23,33 +23,49 @@ func (r *mutationResolver) GenerateNonce(ctx context.Context, input model.NonceI
 		return nil, err
 	}
 
-	return &model.Nonce{Value: nonce}, nil
+	return &model.NonceResult{
+		Nonce: nonce,
+	}, nil
 }
 
 // Login is the resolver for the login field.
-func (r *mutationResolver) Login(ctx context.Context, input model.LoginInput) (*model.Session, error) {
+func (r *mutationResolver) Login(ctx context.Context, input model.LoginInput) (*model.AuthResult, error) {
 	signatureBytes, err := base64.StdEncoding.DecodeString(input.Signature)
 	if err != nil {
 		return nil, err
 	}
 
-	sessionToken, err := r.authnService.Login(ctx, input.Address, input.Message, signatureBytes)
+	sessionToken, refreshToken, err := r.authnService.Login(ctx, input.Address, input.Message, signatureBytes)
 	if err != nil {
 		return nil, err
 	}
 
-	return &model.Session{
+	return &model.AuthResult{
 		SessionToken: sessionToken,
+		RefreshToken: refreshToken,
+	}, nil
+}
+
+// Refresh is the resolver for the refresh field.
+func (r *mutationResolver) Refresh(ctx context.Context, input *model.RefreshInput) (*model.AuthResult, error) {
+	sessionToken, refreshToken, err := r.authnService.RefreshSession(ctx, input.RefreshToken)
+	if err != nil {
+		return nil, err
+	}
+
+	return &model.AuthResult{
+		SessionToken: sessionToken,
+		RefreshToken: refreshToken,
 	}, nil
 }
 
 // Nonce is the resolver for the nonce field.
-func (r *queryResolver) Nonce(ctx context.Context, address string) (*model.Nonce, error) {
+func (r *queryResolver) Nonce(ctx context.Context, address string) (*model.NonceResult, error) {
 	panic(fmt.Errorf("not implemented: Nonce - nonce"))
 }
 
 // Nonces is the resolver for the nonces field.
-func (r *queryResolver) Nonces(ctx context.Context) ([]*model.Nonce, error) {
+func (r *queryResolver) Nonces(ctx context.Context) ([]*model.NonceResult, error) {
 	panic(fmt.Errorf("not implemented: Nonces - nonces"))
 }
 

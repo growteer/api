@@ -2,7 +2,6 @@ package authn
 
 import (
 	"context"
-	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -10,19 +9,18 @@ import (
 )
 
 const db_collection_nonces = "nonces"
-
-type dao struct {
-	Address string `bson:"address"`
-	Nonce string `bson:"nonce"`
-	CreatedAt time.Time `bson:"createdAt"`
-}
+const db_collection_refresh_tokens = "refresh_tokens"
 
 type repository struct {
 	nonces *mongo.Collection
+	refreshTokens *mongo.Collection
 }
 
 func NewRepository(db *mongo.Database) (*repository, error) {
-	repo := &repository{ nonces: db.Collection(db_collection_nonces)}
+	repo := &repository{
+		nonces: db.Collection(db_collection_nonces),
+		refreshTokens: db.Collection(db_collection_refresh_tokens),
+	}
 
 	indexModel := mongo.IndexModel{
 		Keys: bson.D{
@@ -37,28 +35,4 @@ func NewRepository(db *mongo.Database) (*repository, error) {
 	}
 
 	return repo, nil
-}
-
-func (r *repository) GetByAddress(ctx context.Context, address string) (string, error) {
-	var result dao
-
-	err := r.nonces.FindOne(ctx, bson.M{"address": address}).Decode(&result)
-	if err != nil {
-		return "", err
-	}
-
-	return result.Nonce, nil
-}
-
-func (r *repository) Save(ctx context.Context, address, nonce string) error {
-	newRecord := dao{
-		Address: address,
-		Nonce: nonce,
-		CreatedAt: time.Now(),
-	}
-
-	opts := options.Replace().SetUpsert(true)
-	_, err := r.nonces.ReplaceOne(ctx, bson.M{"address": address}, newRecord, opts)
-
-	return err
 }
