@@ -12,6 +12,10 @@ func (s *Service) RefreshSession(ctx context.Context, refreshToken string) (newS
 	}
 
 	address := claims.Subject
+	if !IsValidEthereumAddress(address) {
+		return "", "", fmt.Errorf("invalid ethereum address parsed from the refresh token: %s", address)
+	}
+
 	savedToken, err := s.repo.GetRefreshTokenByAddress(ctx, address)
 	if err != nil {
 		return "", "", fmt.Errorf("could not find refresh token for user: %w", err)

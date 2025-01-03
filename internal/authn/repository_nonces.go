@@ -2,6 +2,7 @@ package authn
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
@@ -15,8 +16,11 @@ type daoNonce struct {
 }
 
 func (r *repository) GetNonceByAddress(ctx context.Context, address string) (string, error) {
-	var result daoNonce
+	if !IsValidEthereumAddress(address) {
+		return "", fmt.Errorf("invalid ethereum address passed to GetNonceByAddress: %s", address)
+	}
 
+	var result daoNonce
 	err := r.nonces.FindOne(ctx, bson.M{"address": address}).Decode(&result)
 	if err != nil {
 		return "", err
@@ -26,6 +30,10 @@ func (r *repository) GetNonceByAddress(ctx context.Context, address string) (str
 }
 
 func (r *repository) SaveNonce(ctx context.Context, address, nonce string) error {
+	if !IsValidEthereumAddress(address) {
+		return fmt.Errorf("invalid ethereum address passed to SaveNonce: %s", address)
+	}
+
 	newRecord := daoNonce{
 		Address: address,
 		Nonce: nonce,
