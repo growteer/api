@@ -6,7 +6,6 @@ package graph
 
 import (
 	"context"
-	"encoding/base64"
 	"fmt"
 
 	"github.com/growteer/api/graph/model"
@@ -30,12 +29,7 @@ func (r *mutationResolver) GenerateNonce(ctx context.Context, input model.NonceI
 
 // Login is the resolver for the login field.
 func (r *mutationResolver) Login(ctx context.Context, input model.LoginInput) (*model.AuthResult, error) {
-	signatureBytes, err := base64.StdEncoding.DecodeString(input.Signature)
-	if err != nil {
-		return nil, err
-	}
-
-	sessionToken, refreshToken, err := r.authnService.Login(ctx, input.Address, input.Message, signatureBytes)
+	sessionToken, refreshToken, err := r.authnService.Login(ctx, input.Address, input.Message, input.Signature)
 	if err != nil {
 		return nil, err
 	}

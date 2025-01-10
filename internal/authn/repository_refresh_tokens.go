@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/growteer/api/infrastructure/solana"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -16,8 +17,8 @@ type daoRefreshToken struct {
 }
 
 func (r *repository) SaveRefreshToken(ctx context.Context, address, token string) error {
-	if !IsValidEthereumAddress(address) {
-		return fmt.Errorf("invalid ethereum address passed to SaveRefreshToken: %s", address)
+	if err := solana.VerifyPublicKey(address); err != nil {
+		return fmt.Errorf("invalid address passed to SaveRefreshToken: %s", address)
 	}
 
 	newRecord := daoRefreshToken{
@@ -33,8 +34,8 @@ func (r *repository) SaveRefreshToken(ctx context.Context, address, token string
 }
 
 func (r *repository) GetRefreshTokenByAddress(ctx context.Context, address string) (string, error) {
-	if !IsValidEthereumAddress(address) {
-		return "", fmt.Errorf("invalid ethereum address passed to GetRefreshTokenByAddress: %s", address)
+	if err := solana.VerifyPublicKey(address); err != nil {
+		return "", fmt.Errorf("invalid address passed to GetRefreshTokenByAddress: %s", address)
 	}
 
 	var result daoRefreshToken

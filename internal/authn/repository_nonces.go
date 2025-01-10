@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/growteer/api/infrastructure/solana"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -16,8 +17,8 @@ type daoNonce struct {
 }
 
 func (r *repository) GetNonceByAddress(ctx context.Context, address string) (string, error) {
-	if !IsValidEthereumAddress(address) {
-		return "", fmt.Errorf("invalid ethereum address passed to GetNonceByAddress: %s", address)
+	if err := solana.VerifyPublicKey(address); err != nil {
+		return "", fmt.Errorf("invalid address passed to GetNonceByAddress: %s", address)
 	}
 
 	var result daoNonce
@@ -30,8 +31,8 @@ func (r *repository) GetNonceByAddress(ctx context.Context, address string) (str
 }
 
 func (r *repository) SaveNonce(ctx context.Context, address, nonce string) error {
-	if !IsValidEthereumAddress(address) {
-		return fmt.Errorf("invalid ethereum address passed to SaveNonce: %s", address)
+	if err := solana.VerifyPublicKey(address); err != nil {
+		return fmt.Errorf("invalid address passed to SaveNonce: %s", address)
 	}
 
 	newRecord := daoNonce{
