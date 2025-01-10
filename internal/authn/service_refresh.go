@@ -3,6 +3,8 @@ package authn
 import (
 	"context"
 	"fmt"
+
+	"github.com/growteer/api/infrastructure/solana"
 )
 
 func (s *Service) RefreshSession(ctx context.Context, refreshToken string) (newSessionToken string, newRefreshToken string, err error) {
@@ -12,8 +14,8 @@ func (s *Service) RefreshSession(ctx context.Context, refreshToken string) (newS
 	}
 
 	address := claims.Subject
-	if !IsValidEthereumAddress(address) {
-		return "", "", fmt.Errorf("invalid ethereum address parsed from the refresh token: %s", address)
+	if err := solana.VerifyPublicKey(address); err != nil {
+		return "", "", fmt.Errorf("invalid solana address parsed from the refresh token: %s", address)
 	}
 
 	savedToken, err := s.repo.GetRefreshTokenByAddress(ctx, address)

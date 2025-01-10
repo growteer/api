@@ -5,15 +5,14 @@ import (
 	"crypto/rand"
 	"encoding/hex"
 	"fmt"
-	"log/slog"
 	"strings"
 
-	"github.com/growteer/api/infrastructure/ethereum"
+	"github.com/growteer/api/infrastructure/solana"
 )
 
 const nonce_length = 32
 
-func (s *Service) Login(ctx context.Context, address, message string, signature []byte) (sessionToken string, refreshToken string, err error) {
+func (s *Service) Login(ctx context.Context, address, message string, signature string) (sessionToken string, refreshToken string, err error) {
 	err = s.verifySignature(ctx, address, message, signature)
 	if err != nil {
 		return "", "", fmt.Errorf("verification of the received signature failed: %w", err)
@@ -22,7 +21,7 @@ func (s *Service) Login(ctx context.Context, address, message string, signature 
 	return s.createNewTokens(ctx, address)
 }
 
-func (s *Service) verifySignature(ctx context.Context, address string, message string, signature []byte) error {
+func (s *Service) verifySignature(ctx context.Context, address string, message string, signature string) error {
 	nonce, err := s.repo.GetNonceByAddress(ctx, address)
 	if err != nil {
 		return err
@@ -32,14 +31,8 @@ func (s *Service) verifySignature(ctx context.Context, address string, message s
 		return fmt.Errorf("message does not contain the correct nonce")
 	}
 
-	addressFromSig, err := ethereum.GetAddressFromSignature(message, signature)
-	if err != nil {
-		return  err
-	}
-
-	if addressFromSig != address {
-		slog.Error(fmt.Sprintf("address %s from signature does not match address %s", addressFromSig, address))
-		return fmt.Errorf("address and signature do not match")
+	if err = solana.VerifySignature(message, signature, address); err != nil {
+		return err
 	}
 
 	return  nil
