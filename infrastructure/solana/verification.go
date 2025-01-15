@@ -8,13 +8,6 @@ import (
 	solana_go "github.com/gagliardetto/solana-go"
 )
 
-
-func VerifyPublicKey(publicKeyBase58 string) error {
-	_, err := solana_go.PublicKeyFromBase58(publicKeyBase58)
-
-	return err
-}
-
 func VerifySignature(message, signatureBase64, publicKeyBase58 string) error {
 	publicKey, err := solana_go.PublicKeyFromBase58(publicKeyBase58)
 	if err != nil {

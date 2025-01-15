@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/growteer/api/infrastructure/solana"
+	"github.com/growteer/api/pkg/web3util"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -17,7 +17,7 @@ type daoNonce struct {
 }
 
 func (r *repository) GetNonceByAddress(ctx context.Context, address string) (string, error) {
-	if err := solana.VerifyPublicKey(address); err != nil {
+	if err := web3util.VerifySolanaPublicKey(address); err != nil {
 		return "", fmt.Errorf("invalid address passed to GetNonceByAddress: %s", address)
 	}
 
@@ -31,7 +31,7 @@ func (r *repository) GetNonceByAddress(ctx context.Context, address string) (str
 }
 
 func (r *repository) SaveNonce(ctx context.Context, address, nonce string) error {
-	if err := solana.VerifyPublicKey(address); err != nil {
+	if err := web3util.VerifySolanaPublicKey(address); err != nil {
 		return fmt.Errorf("invalid address passed to SaveNonce: %s", address)
 	}
 
