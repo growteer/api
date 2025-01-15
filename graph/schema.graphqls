@@ -7,19 +7,15 @@ type Mutation {
   generateNonce(input: NonceInput!): NonceResult!
   login(input: LoginInput!): AuthResult!
   refresh(input: RefreshInput): AuthResult!
-}
-
-type NonceResult {
-  nonce: String!
+  signup(input: SignupInput!): AuthResult!
 }
 
 input NonceInput {
   address: String!
 }
 
-type AuthResult {
-  sessionToken: String!
-  refreshToken: String!
+type NonceResult {
+  nonce: String!
 }
 
 input LoginInput {
@@ -30,4 +26,30 @@ input LoginInput {
 
 input RefreshInput {
   refreshToken: String!
+}
+
+type AuthResult {
+  sessionToken: String!
+  refreshToken: String!
+}
+
+input SignupInput {
+  login: LoginInput!
+  profile: UserProfileInput!
+}
+
+input UserProfileInput {
+  firstname: String!
+  lastname: String!
+  primaryEmail: String!
+  location: LocationInput
+  website: String
+  personalGoal: String
+  about: String
+}
+
+input LocationInput {
+  country: String!
+  postalCode: String
+  city: String
 }
