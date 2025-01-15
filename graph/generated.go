@@ -56,6 +56,7 @@ type ComplexityRoot struct {
 		GenerateNonce func(childComplexity int, input model.NonceInput) int
 		Login         func(childComplexity int, input model.LoginInput) int
 		Refresh       func(childComplexity int, input *model.RefreshInput) int
+		Signup        func(childComplexity int, input model.SignupInput) int
 	}
 
 	NonceResult struct {
@@ -72,6 +73,7 @@ type MutationResolver interface {
 	GenerateNonce(ctx context.Context, input model.NonceInput) (*model.NonceResult, error)
 	Login(ctx context.Context, input model.LoginInput) (*model.AuthResult, error)
 	Refresh(ctx context.Context, input *model.RefreshInput) (*model.AuthResult, error)
+	Signup(ctx context.Context, input model.SignupInput) (*model.AuthResult, error)
 }
 type QueryResolver interface {
 	Nonce(ctx context.Context, address string) (*model.NonceResult, error)
@@ -147,6 +149,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.Refresh(childComplexity, args["input"].(*model.RefreshInput)), true
 
+	case "Mutation.signup":
+		if e.complexity.Mutation.Signup == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_signup_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.Signup(childComplexity, args["input"].(model.SignupInput)), true
+
 	case "NonceResult.nonce":
 		if e.complexity.NonceResult.Nonce == nil {
 			break
@@ -181,9 +195,12 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 	opCtx := graphql.GetOperationContext(ctx)
 	ec := executionContext{opCtx, e, 0, 0, make(chan graphql.DeferredResult)}
 	inputUnmarshalMap := graphql.BuildUnmarshalerMap(
+		ec.unmarshalInputLocationInput,
 		ec.unmarshalInputLoginInput,
 		ec.unmarshalInputNonceInput,
 		ec.unmarshalInputRefreshInput,
+		ec.unmarshalInputSignupInput,
+		ec.unmarshalInputUserProfileInput,
 	)
 	first := true
 
@@ -366,6 +383,29 @@ func (ec *executionContext) field_Mutation_refresh_argsInput(
 	}
 
 	var zeroVal *model.RefreshInput
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Mutation_signup_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	arg0, err := ec.field_Mutation_signup_argsInput(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
+	return args, nil
+}
+func (ec *executionContext) field_Mutation_signup_argsInput(
+	ctx context.Context,
+	rawArgs map[string]interface{},
+) (model.SignupInput, error) {
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalNSignupInput2githubᚗcomᚋgrowteerᚋapiᚋgraphᚋmodelᚐSignupInput(ctx, tmp)
+	}
+
+	var zeroVal model.SignupInput
 	return zeroVal, nil
 }
 
@@ -732,6 +772,67 @@ func (ec *executionContext) fieldContext_Mutation_refresh(ctx context.Context, f
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Mutation_refresh_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_signup(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_signup(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().Signup(rctx, fc.Args["input"].(model.SignupInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.AuthResult)
+	fc.Result = res
+	return ec.marshalNAuthResult2ᚖgithubᚗcomᚋgrowteerᚋapiᚋgraphᚋmodelᚐAuthResult(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_signup(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "sessionToken":
+				return ec.fieldContext_AuthResult_sessionToken(ctx, field)
+			case "refreshToken":
+				return ec.fieldContext_AuthResult_refreshToken(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type AuthResult", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_signup_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -2788,6 +2889,47 @@ func (ec *executionContext) fieldContext___Type_specifiedByURL(_ context.Context
 
 // region    **************************** input.gotpl *****************************
 
+func (ec *executionContext) unmarshalInputLocationInput(ctx context.Context, obj interface{}) (model.LocationInput, error) {
+	var it model.LocationInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"country", "postalCode", "city"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "country":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("country"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Country = data
+		case "postalCode":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("postalCode"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.PostalCode = data
+		case "city":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("city"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.City = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputLoginInput(ctx context.Context, obj interface{}) (model.LoginInput, error) {
 	var it model.LoginInput
 	asMap := map[string]interface{}{}
@@ -2883,6 +3025,109 @@ func (ec *executionContext) unmarshalInputRefreshInput(ctx context.Context, obj 
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputSignupInput(ctx context.Context, obj interface{}) (model.SignupInput, error) {
+	var it model.SignupInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"login", "profile"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "login":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("login"))
+			data, err := ec.unmarshalNLoginInput2ᚖgithubᚗcomᚋgrowteerᚋapiᚋgraphᚋmodelᚐLoginInput(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Login = data
+		case "profile":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("profile"))
+			data, err := ec.unmarshalNUserProfileInput2ᚖgithubᚗcomᚋgrowteerᚋapiᚋgraphᚋmodelᚐUserProfileInput(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Profile = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputUserProfileInput(ctx context.Context, obj interface{}) (model.UserProfileInput, error) {
+	var it model.UserProfileInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"firstname", "lastname", "primaryEmail", "location", "website", "personalGoal", "about"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "firstname":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("firstname"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Firstname = data
+		case "lastname":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("lastname"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Lastname = data
+		case "primaryEmail":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("primaryEmail"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.PrimaryEmail = data
+		case "location":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("location"))
+			data, err := ec.unmarshalOLocationInput2ᚖgithubᚗcomᚋgrowteerᚋapiᚋgraphᚋmodelᚐLocationInput(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Location = data
+		case "website":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("website"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Website = data
+		case "personalGoal":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("personalGoal"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.PersonalGoal = data
+		case "about":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("about"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.About = data
+		}
+	}
+
+	return it, nil
+}
+
 // endregion **************************** input.gotpl *****************************
 
 // region    ************************** interface.gotpl ***************************
@@ -2971,6 +3216,13 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 		case "refresh":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_refresh(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "signup":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_signup(ctx, field)
 			})
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
@@ -3488,6 +3740,11 @@ func (ec *executionContext) unmarshalNLoginInput2githubᚗcomᚋgrowteerᚋapi�
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
+func (ec *executionContext) unmarshalNLoginInput2ᚖgithubᚗcomᚋgrowteerᚋapiᚋgraphᚋmodelᚐLoginInput(ctx context.Context, v interface{}) (*model.LoginInput, error) {
+	res, err := ec.unmarshalInputLoginInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) unmarshalNNonceInput2githubᚗcomᚋgrowteerᚋapiᚋgraphᚋmodelᚐNonceInput(ctx context.Context, v interface{}) (model.NonceInput, error) {
 	res, err := ec.unmarshalInputNonceInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -3507,6 +3764,11 @@ func (ec *executionContext) marshalNNonceResult2ᚖgithubᚗcomᚋgrowteerᚋapi
 	return ec._NonceResult(ctx, sel, v)
 }
 
+func (ec *executionContext) unmarshalNSignupInput2githubᚗcomᚋgrowteerᚋapiᚋgraphᚋmodelᚐSignupInput(ctx context.Context, v interface{}) (model.SignupInput, error) {
+	res, err := ec.unmarshalInputSignupInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) unmarshalNString2string(ctx context.Context, v interface{}) (string, error) {
 	res, err := graphql.UnmarshalString(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -3520,6 +3782,11 @@ func (ec *executionContext) marshalNString2string(ctx context.Context, sel ast.S
 		}
 	}
 	return res
+}
+
+func (ec *executionContext) unmarshalNUserProfileInput2ᚖgithubᚗcomᚋgrowteerᚋapiᚋgraphᚋmodelᚐUserProfileInput(ctx context.Context, v interface{}) (*model.UserProfileInput, error) {
+	res, err := ec.unmarshalInputUserProfileInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) marshalN__Directive2githubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐDirective(ctx context.Context, sel ast.SelectionSet, v introspection.Directive) graphql.Marshaler {
@@ -3799,6 +4066,14 @@ func (ec *executionContext) marshalOBoolean2ᚖbool(ctx context.Context, sel ast
 	}
 	res := graphql.MarshalBoolean(*v)
 	return res
+}
+
+func (ec *executionContext) unmarshalOLocationInput2ᚖgithubᚗcomᚋgrowteerᚋapiᚋgraphᚋmodelᚐLocationInput(ctx context.Context, v interface{}) (*model.LocationInput, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputLocationInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) marshalONonceResult2ᚕᚖgithubᚗcomᚋgrowteerᚋapiᚋgraphᚋmodelᚐNonceResult(ctx context.Context, sel ast.SelectionSet, v []*model.NonceResult) graphql.Marshaler {

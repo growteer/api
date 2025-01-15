@@ -53,6 +53,11 @@ func (r *mutationResolver) Refresh(ctx context.Context, input *model.RefreshInpu
 	}, nil
 }
 
+// Signup is the resolver for the signup field.
+func (r *mutationResolver) Signup(ctx context.Context, input model.SignupInput) (*model.AuthResult, error) {
+	panic(fmt.Errorf("not implemented: Signup - signup"))
+}
+
 // Nonce is the resolver for the nonce field.
 func (r *queryResolver) Nonce(ctx context.Context, address string) (*model.NonceResult, error) {
 	panic(fmt.Errorf("not implemented: Nonce - nonce"))
