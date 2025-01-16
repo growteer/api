@@ -2,10 +2,10 @@ package authn
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/growteer/api/internal/profiles"
+	"github.com/growteer/api/pkg/gqlutil"
 	"github.com/growteer/api/pkg/web3util"
 )
 
@@ -43,16 +43,16 @@ func NewService(authRepo Repository, tokenProvider TokenProvider, userRepo UserR
 func (s *Service) createNewTokens(ctx context.Context, did *web3util.DID) (newSessionToken string, newRefreshToken string, err error) {
 	newSessionToken, err = s.tokenProvider.NewSessionToken(did)
 	if err != nil {
-		return "", "", fmt.Errorf("could not generate new session token: %w", err)
+		return "", "", gqlutil.InternalError(ctx, "could not generate new session token", err)
 	}
 
 	newRefreshToken, err = s.tokenProvider.NewRefreshToken(did)
 	if err != nil {
-		return "", "", fmt.Errorf("could not generate new refresh token: %w", err)
+		return "", "", gqlutil.InternalError(ctx, "could not generate new refresh token", err)
 	}
 
 	if err = s.authRepo.SaveRefreshToken(ctx, did, newRefreshToken); err != nil {
-		return "", "", fmt.Errorf("failed saving the new refresh token: %w", err)
+		return "", "", gqlutil.InternalError(ctx, "could not save new refresh token", err)
 	}
 
 	return newSessionToken, newRefreshToken, nil
