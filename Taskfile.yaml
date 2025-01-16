@@ -3,6 +3,17 @@ version: "3"
 vars:
   BIN: "{{ .TASKFILE_DIR }}/bin"
 
+env:
+  HTTP_PORT: 8080
+  MONGO_HOST: localhost
+  MONGO_PORT: 27017
+  MONGO_USER: admin
+  MONGO_PASSWORD: password
+  MONGO_DB_NAME: api_service
+  MONGO_SSL: false
+  JWT_SECRET: baconkilbasa
+  SESSION_TTL_MINUTES: 60
+
 tasks:
   build:
     cmds:
@@ -19,16 +30,14 @@ tasks:
   run:
     cmds:
       - go run ./cmd/main.go
-    env:
-      HTTP_PORT: 8080
-      MONGO_HOST: localhost
-      MONGO_PORT: 27017
-      MONGO_USER: admin
-      MONGO_PASSWORD: password
-      MONGO_DB_NAME: api_service
-      MONGO_SSL: false
-      JWT_SECRET: baconkilbasa
-      SESSION_TTL_MINUTES: 60
+
+  debug:
+    cmd: |
+      go run github.com/go-delve/delve/cmd/dlv@latest debug \
+        ./cmd/main.go \
+        --headless \
+        --listen=:2345 \
+        --api-version=2
 
   gen:
     cmds:
