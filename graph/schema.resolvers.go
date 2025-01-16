@@ -9,15 +9,18 @@ import (
 	"fmt"
 
 	"github.com/growteer/api/graph/model"
+	"github.com/growteer/api/pkg/web3util"
 )
 
 // GenerateNonce is the resolver for the generateNonce field.
 func (r *mutationResolver) GenerateNonce(ctx context.Context, input model.NonceInput) (*model.NonceResult, error) {
-	if input.Address == "" {
-		return nil, fmt.Errorf("bad request")
+	if err := web3util.VerifySolanaPublicKey(input.Address); err != nil {
+		return nil, fmt.Errorf("cannot generate nonce for invalid solana address %s: %w", input.Address, err)
 	}
 
-	nonce, err := r.authnService.GenerateNonce(ctx, input.Address)
+	did := web3util.NewDID(web3util.DIDMethodPKH, web3util.NamespaceSolana, input.Address)
+
+	nonce, err := r.authnService.GenerateNonce(ctx, did)
 	if err != nil {
 		return nil, err
 	}
@@ -29,7 +32,13 @@ func (r *mutationResolver) GenerateNonce(ctx context.Context, input model.NonceI
 
 // Login is the resolver for the login field.
 func (r *mutationResolver) Login(ctx context.Context, input model.LoginInput) (*model.AuthResult, error) {
-	sessionToken, refreshToken, err := r.authnService.Login(ctx, input.Address, input.Message, input.Signature)
+	if err := web3util.VerifySolanaPublicKey(input.Address); err != nil {
+		return nil, fmt.Errorf("cannot login with invalid solana address %s: %w", input.Address, err)
+	}
+
+	did := web3util.NewDID(web3util.DIDMethodPKH, web3util.NamespaceSolana, input.Address)
+
+	sessionToken, refreshToken, err := r.authnService.Login(ctx, did, input.Message, input.Signature)
 	if err != nil {
 		return nil, err
 	}

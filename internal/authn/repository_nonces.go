@@ -2,7 +2,6 @@ package authn
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"github.com/growteer/api/pkg/web3util"
@@ -11,18 +10,14 @@ import (
 )
 
 type daoNonce struct {
-	Address string `bson:"address"`
+	DID string `bson:"_id"`
 	Nonce string `bson:"nonce"`
 	CreatedAt time.Time `bson:"createdAt"`
 }
 
-func (r *repository) GetNonceByAddress(ctx context.Context, address string) (string, error) {
-	if err := web3util.VerifySolanaPublicKey(address); err != nil {
-		return "", fmt.Errorf("invalid address passed to GetNonceByAddress: %s", address)
-	}
-
+func (r *repository) GetNonceByDID(ctx context.Context, did *web3util.DID) (string, error) {
 	var result daoNonce
-	err := r.nonces.FindOne(ctx, bson.M{"address": address}).Decode(&result)
+	err := r.nonces.FindOne(ctx, bson.M{"_id": did.String()}).Decode(&result)
 	if err != nil {
 		return "", err
 	}
@@ -30,19 +25,15 @@ func (r *repository) GetNonceByAddress(ctx context.Context, address string) (str
 	return result.Nonce, nil
 }
 
-func (r *repository) SaveNonce(ctx context.Context, address, nonce string) error {
-	if err := web3util.VerifySolanaPublicKey(address); err != nil {
-		return fmt.Errorf("invalid address passed to SaveNonce: %s", address)
-	}
-
+func (r *repository) SaveNonce(ctx context.Context, did *web3util.DID, nonce string) error {
 	newRecord := daoNonce{
-		Address: address,
+		DID: did.String(),
 		Nonce: nonce,
 		CreatedAt: time.Now(),
 	}
 
 	opts := options.Replace().SetUpsert(true)
-	_, err := r.nonces.ReplaceOne(ctx, bson.M{"address": address}, newRecord, opts)
+	_, err := r.nonces.ReplaceOne(ctx, bson.M{"_id": did.String()}, newRecord, opts)
 
 	return err
 }

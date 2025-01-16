@@ -2,6 +2,7 @@ package authn
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 
 	"github.com/growteer/api/pkg/web3util"
@@ -13,12 +14,17 @@ func (s *Service) RefreshSession(ctx context.Context, refreshToken string) (newS
 		return "", "", fmt.Errorf("could not parse refresh token: %w", err)
 	}
 
-	address := claims.Subject
-	if err := web3util.VerifySolanaPublicKey(address); err != nil {
-		return "", "", fmt.Errorf("invalid solana address parsed from the refresh token: %s", address)
+	serializedDid := []byte(claims.Subject)
+	var did *web3util.DID
+	if err = json.Unmarshal(serializedDid, did); err != nil {
+		return "", "", fmt.Errorf("could not parse did %s from refresh token: %w", did.String(), err)
 	}
 
-	savedToken, err := s.repo.GetRefreshTokenByAddress(ctx, address)
+	if err := web3util.VerifySolanaPublicKey(did.Address); err != nil {
+		return "", "", fmt.Errorf("did %s isn't constructed with a valid solana address: %w", did.String(), err)
+	}
+
+	savedToken, err := s.authRepo.GetRefreshTokenByDID(ctx, did)
 	if err != nil {
 		return "", "", fmt.Errorf("could not find refresh token for user: %w", err)
 	}
@@ -27,6 +33,6 @@ func (s *Service) RefreshSession(ctx context.Context, refreshToken string) (newS
 		return "", "", fmt.Errorf("refresh token doesn't match")
 	}
 
-	return s.createNewTokens(ctx, address)
+	return s.createNewTokens(ctx, did)
 }
 

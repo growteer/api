@@ -2,7 +2,6 @@ package authn
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"github.com/growteer/api/pkg/web3util"
@@ -11,36 +10,27 @@ import (
 )
 
 type daoRefreshToken struct {
-	Address string `bson:"address"`
+	DID string `bson:"_id"`
 	Token string `bson:"token"`
 	CreatedAt time.Time `bson:"createdAt"`
 }
 
-func (r *repository) SaveRefreshToken(ctx context.Context, address, token string) error {
-	if err := web3util.VerifySolanaPublicKey(address); err != nil {
-		return fmt.Errorf("invalid address passed to SaveRefreshToken: %s", address)
-	}
-
+func (r *repository) SaveRefreshToken(ctx context.Context, did *web3util.DID, token string) error {
 	newRecord := daoRefreshToken{
-		Address: address,
+		DID: did.String(),
 		Token: token,
 		CreatedAt: time.Now(),
 	}
 
 	opts := options.Replace().SetUpsert(true)
-	_, err := r.nonces.ReplaceOne(ctx, bson.M{"address": address}, newRecord, opts)
+	_, err := r.nonces.ReplaceOne(ctx, bson.M{"_id": did.String()}, newRecord, opts)
 
 	return err
 }
 
-func (r *repository) GetRefreshTokenByAddress(ctx context.Context, address string) (string, error) {
-	if err := web3util.VerifySolanaPublicKey(address); err != nil {
-		return "", fmt.Errorf("invalid address passed to GetRefreshTokenByAddress: %s", address)
-	}
-
+func (r *repository) GetRefreshTokenByDID(ctx context.Context, did *web3util.DID) (string, error) {
 	var result daoRefreshToken
-
-	err := r.refreshTokens.FindOne(ctx, bson.M{"address": address}).Decode(&result)
+	err := r.refreshTokens.FindOne(ctx, bson.M{"_id": did.String()}).Decode(&result)
 	if err != nil {
 		return "", err
 	}

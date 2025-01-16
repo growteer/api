@@ -4,6 +4,7 @@ import (
 	"github.com/growteer/api/infrastructure/environment"
 	"github.com/growteer/api/infrastructure/tokens"
 	"github.com/growteer/api/internal/authn"
+	"github.com/growteer/api/internal/profiles"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
@@ -23,7 +24,9 @@ func NewResolver(db *mongo.Database, env *environment.Environment) *Resolver {
 		panic(err)
 	}
 
+	profileRepo := profiles.NewRepository(db)
+
 	return &Resolver{
-		authnService: authn.NewService(authnRepo, tokenProvider),
+		authnService: authn.NewService(authnRepo, tokenProvider, profileRepo),
 	}
 }
