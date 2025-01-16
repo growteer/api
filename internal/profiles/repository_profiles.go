@@ -9,7 +9,7 @@ import (
 )
 
 type Profile struct {
-	DID web3util.DID `bson:"_id"`
+	DID string `bson:"_id"`
 	FirstName string `bson:"firstName"`
 	LastName string `bson:"lastName"`
 	PrimaryEmail string `bson:"primaryEmail"`
@@ -24,17 +24,7 @@ type Profile struct {
 	CreatedAt time.Time `bson:"createdAt"`
 }
 
-func (r *repository) GetByDID(ctx context.Context, did web3util.DID) (*Profile, error) {
-	var result *Profile
-	err := r.profiles.FindOne(ctx, bson.M{"_id": did.String()}).Decode(result)
-	if err != nil {
-		return nil, err
-	}
-
-	return result, nil
-}
-
-func (r *repository) Create(ctx context.Context, profile Profile) (*Profile, error) {
+func (r *Repository) Create(ctx context.Context, profile Profile) (*Profile, error) {
 	profile.CreatedAt = time.Now()
 	_, err := r.profiles.InsertOne(ctx, profile)
 	if err != nil {
@@ -42,4 +32,14 @@ func (r *repository) Create(ctx context.Context, profile Profile) (*Profile, err
 	}
 
 	return &profile, nil
+}
+
+func (r *Repository) GetByDID(ctx context.Context, did *web3util.DID) (*Profile, error) {
+	var result *Profile
+	err := r.profiles.FindOne(ctx, bson.M{"_id": did.String()}).Decode(result)
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
 }
