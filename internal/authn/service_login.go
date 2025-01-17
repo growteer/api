@@ -17,12 +17,13 @@ const nonce_length = 32
 func (s *Service) Login(ctx context.Context, did *web3util.DID, message string, signature string) (sessionToken string, refreshToken string, err error) {
 	err = s.verifySignature(ctx, did, message, signature)
 	if err != nil {
-		return "", "", gqlutil.BadInputError(ctx, "invalid signature", err)
+		return "", "", gqlutil.BadInputError(ctx, "invalid signature", gqlutil.ErrCodeInvalidCredentials, err)
 	}
 
 	_, err = s.userRepo.GetByDID(ctx, did)
 	if err != nil {
-		return "", "", gqlutil.BadInputError(ctx, "user not signed up", err)
+		_ = gqlutil.BadInputError(ctx, "user not signed up", gqlutil.ErrCodeUserNotSignedUp, err)
+		return "", "", nil
 	}
 
 	return s.createNewTokens(ctx, did)

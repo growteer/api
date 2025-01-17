@@ -16,7 +16,7 @@ import (
 // GenerateNonce is the resolver for the generateNonce field.
 func (r *mutationResolver) GenerateNonce(ctx context.Context, input model.NonceInput) (*model.NonceResult, error) {
 	if err := web3util.VerifySolanaPublicKey(input.Address); err != nil {
-		return nil, gqlutil.BadInputError(ctx, "invalid solana address", err)
+		return nil, gqlutil.BadInputError(ctx, "invalid solana address", gqlutil.ErrCodeInvalidCredentials, err)
 	}
 
 	did := web3util.NewDID(web3util.DIDMethodPKH, web3util.NamespaceSolana, input.Address)
@@ -34,7 +34,7 @@ func (r *mutationResolver) GenerateNonce(ctx context.Context, input model.NonceI
 // Login is the resolver for the login field.
 func (r *mutationResolver) Login(ctx context.Context, input model.LoginInput) (*model.AuthResult, error) {
 	if err := web3util.VerifySolanaPublicKey(input.Address); err != nil {
-		return nil, gqlutil.BadInputError(ctx, "invalid solana address", err)
+		return nil, gqlutil.BadInputError(ctx, "invalid solana address", gqlutil.ErrCodeInvalidCredentials, err)
 	}
 
 	did := web3util.NewDID(web3util.DIDMethodPKH, web3util.NamespaceSolana, input.Address)
@@ -54,7 +54,7 @@ func (r *mutationResolver) Login(ctx context.Context, input model.LoginInput) (*
 func (r *mutationResolver) Refresh(ctx context.Context, input *model.RefreshInput) (*model.AuthResult, error) {
 	sessionToken, refreshToken, err := r.authnService.RefreshSession(ctx, input.RefreshToken)
 	if err != nil {
-		return nil, gqlutil.BadInputError(ctx, "invalid refresh token", err)
+		return nil, err
 	}
 
 	return &model.AuthResult{
