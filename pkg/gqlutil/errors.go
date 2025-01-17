@@ -15,24 +15,32 @@ const (
 	errTypeInternal ErrType = "INTERNAL_SERVER_ERROR"
 )
 
-func BadInputError(ctx context.Context, message string, err error) error {
-	return &gqlerror.Error{
+func BadInputError(ctx context.Context, message string, code ErrCode, err error) error {
+	gqlErr := &gqlerror.Error{
 		Err: err,
 		Message: message,
 		Path: graphql.GetPath(ctx),
 		Extensions: map[string]interface{}{
 			"type": errTypeBadRequest,
+			"code": code,
 		},
 	}
+
+	graphql.AddError(ctx, gqlErr)
+	return gqlErr
 }
 
 func InternalError(ctx context.Context, message string, err error) error {
-	return &gqlerror.Error{
+	gqlErr := &gqlerror.Error{
 		Err: err,
 		Message: message,
 		Path: graphql.GetPath(ctx),
 		Extensions: map[string]interface{}{
 			"type": errTypeInternal,
+			"code": ErrCodeInternalError,
 		},
 	}
+
+	graphql.AddError(ctx, gqlErr)
+	return gqlErr
 }
