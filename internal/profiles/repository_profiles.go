@@ -12,6 +12,7 @@ type Profile struct {
 	DID string `bson:"_id"`
 	FirstName string `bson:"firstName"`
 	LastName string `bson:"lastName"`
+	DateOfBirth time.Time `bson:"dateOfBirth"`
 	PrimaryEmail string `bson:"primaryEmail"`
 	Location struct {
 		Country string `bson:"country"`

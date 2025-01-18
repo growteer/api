@@ -41,6 +41,7 @@ input SignupInput {
 input UserProfileInput {
   firstname: String!
   lastname: String!
+  dateOfBirth: String!
   primaryEmail: String!
   location: LocationInput
   website: String
