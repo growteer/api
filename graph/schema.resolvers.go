@@ -40,14 +40,11 @@ func (r *mutationResolver) Login(ctx context.Context, input model.LoginInput) (*
 	did := web3util.NewDID(web3util.DIDMethodPKH, web3util.NamespaceSolana, input.Address)
 
 	sessionToken, refreshToken, err := r.authnService.Login(ctx, did, input.Message, input.Signature)
-	if err != nil {
-		return nil, err
-	}
 
 	return &model.AuthResult{
 		SessionToken: sessionToken,
 		RefreshToken: refreshToken,
-	}, nil
+	}, err
 }
 
 // Refresh is the resolver for the refresh field.
