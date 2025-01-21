@@ -2,9 +2,24 @@
 
 package model
 
+import (
+	"fmt"
+	"io"
+	"strconv"
+)
+
 type AuthResult struct {
 	SessionToken string `json:"sessionToken"`
 	RefreshToken string `json:"refreshToken"`
+}
+
+type Error struct {
+	Extensions *ErrorExtensions `json:"extensions,omitempty"`
+}
+
+type ErrorExtensions struct {
+	Code string    `json:"code"`
+	Type ErrorType `json:"type"`
 }
 
 type LocationInput struct {
@@ -45,9 +60,51 @@ type SignupInput struct {
 type UserProfileInput struct {
 	Firstname    string         `json:"firstname"`
 	Lastname     string         `json:"lastname"`
+	DateOfBirth  string         `json:"dateOfBirth"`
 	PrimaryEmail string         `json:"primaryEmail"`
 	Location     *LocationInput `json:"location,omitempty"`
 	Website      *string        `json:"website,omitempty"`
 	PersonalGoal *string        `json:"personalGoal,omitempty"`
 	About        *string        `json:"about,omitempty"`
+}
+
+type ErrorType string
+
+const (
+	ErrorTypeBadRequest          ErrorType = "BAD_REQUEST"
+	ErrorTypeInternalServerError ErrorType = "INTERNAL_SERVER_ERROR"
+)
+
+var AllErrorType = []ErrorType{
+	ErrorTypeBadRequest,
+	ErrorTypeInternalServerError,
+}
+
+func (e ErrorType) IsValid() bool {
+	switch e {
+	case ErrorTypeBadRequest, ErrorTypeInternalServerError:
+		return true
+	}
+	return false
+}
+
+func (e ErrorType) String() string {
+	return string(e)
+}
+
+func (e *ErrorType) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = ErrorType(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid ErrorType", str)
+	}
+	return nil
+}
+
+func (e ErrorType) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
 }
