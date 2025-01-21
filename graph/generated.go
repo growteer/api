@@ -52,6 +52,15 @@ type ComplexityRoot struct {
 		SessionToken func(childComplexity int) int
 	}
 
+	Error struct {
+		Extensions func(childComplexity int) int
+	}
+
+	ErrorExtensions struct {
+		Code func(childComplexity int) int
+		Type func(childComplexity int) int
+	}
+
 	Mutation struct {
 		GenerateNonce func(childComplexity int, input model.NonceInput) int
 		Login         func(childComplexity int, input model.LoginInput) int
@@ -112,6 +121,27 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.AuthResult.SessionToken(childComplexity), true
+
+	case "Error.extensions":
+		if e.complexity.Error.Extensions == nil {
+			break
+		}
+
+		return e.complexity.Error.Extensions(childComplexity), true
+
+	case "ErrorExtensions.code":
+		if e.complexity.ErrorExtensions.Code == nil {
+			break
+		}
+
+		return e.complexity.ErrorExtensions.Code(childComplexity), true
+
+	case "ErrorExtensions.type":
+		if e.complexity.ErrorExtensions.Type == nil {
+			break
+		}
+
+		return e.complexity.ErrorExtensions.Type(childComplexity), true
 
 	case "Mutation.generateNonce":
 		if e.complexity.Mutation.GenerateNonce == nil {
@@ -592,6 +622,141 @@ func (ec *executionContext) fieldContext_AuthResult_refreshToken(_ context.Conte
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Error_extensions(ctx context.Context, field graphql.CollectedField, obj *model.Error) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Error_extensions(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Extensions, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*model.ErrorExtensions)
+	fc.Result = res
+	return ec.marshalOErrorExtensions2ᚖgithubᚗcomᚋgrowteerᚋapiᚋgraphᚋmodelᚐErrorExtensions(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Error_extensions(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Error",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "code":
+				return ec.fieldContext_ErrorExtensions_code(ctx, field)
+			case "type":
+				return ec.fieldContext_ErrorExtensions_type(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type ErrorExtensions", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ErrorExtensions_code(ctx context.Context, field graphql.CollectedField, obj *model.ErrorExtensions) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ErrorExtensions_code(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Code, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ErrorExtensions_code(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ErrorExtensions",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ErrorExtensions_type(ctx context.Context, field graphql.CollectedField, obj *model.ErrorExtensions) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ErrorExtensions_type(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Type, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(model.ErrorType)
+	fc.Result = res
+	return ec.marshalNErrorType2githubᚗcomᚋgrowteerᚋapiᚋgraphᚋmodelᚐErrorType(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ErrorExtensions_type(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ErrorExtensions",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ErrorType does not have child fields")
 		},
 	}
 	return fc, nil
@@ -3066,7 +3231,7 @@ func (ec *executionContext) unmarshalInputUserProfileInput(ctx context.Context, 
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"firstname", "lastname", "primaryEmail", "location", "website", "personalGoal", "about"}
+	fieldsInOrder := [...]string{"firstname", "lastname", "dateOfBirth", "primaryEmail", "location", "website", "personalGoal", "about"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -3087,6 +3252,13 @@ func (ec *executionContext) unmarshalInputUserProfileInput(ctx context.Context, 
 				return it, err
 			}
 			it.Lastname = data
+		case "dateOfBirth":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("dateOfBirth"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.DateOfBirth = data
 		case "primaryEmail":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("primaryEmail"))
 			data, err := ec.unmarshalNString2string(ctx, v)
@@ -3154,6 +3326,86 @@ func (ec *executionContext) _AuthResult(ctx context.Context, sel ast.SelectionSe
 			}
 		case "refreshToken":
 			out.Values[i] = ec._AuthResult_refreshToken(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var errorImplementors = []string{"Error"}
+
+func (ec *executionContext) _Error(ctx context.Context, sel ast.SelectionSet, obj *model.Error) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, errorImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("Error")
+		case "extensions":
+			out.Values[i] = ec._Error_extensions(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var errorExtensionsImplementors = []string{"ErrorExtensions"}
+
+func (ec *executionContext) _ErrorExtensions(ctx context.Context, sel ast.SelectionSet, obj *model.ErrorExtensions) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, errorExtensionsImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("ErrorExtensions")
+		case "code":
+			out.Values[i] = ec._ErrorExtensions_code(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "type":
+			out.Values[i] = ec._ErrorExtensions_type(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -3735,6 +3987,16 @@ func (ec *executionContext) marshalNBoolean2bool(ctx context.Context, sel ast.Se
 	return res
 }
 
+func (ec *executionContext) unmarshalNErrorType2githubᚗcomᚋgrowteerᚋapiᚋgraphᚋmodelᚐErrorType(ctx context.Context, v interface{}) (model.ErrorType, error) {
+	var res model.ErrorType
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNErrorType2githubᚗcomᚋgrowteerᚋapiᚋgraphᚋmodelᚐErrorType(ctx context.Context, sel ast.SelectionSet, v model.ErrorType) graphql.Marshaler {
+	return v
+}
+
 func (ec *executionContext) unmarshalNLoginInput2githubᚗcomᚋgrowteerᚋapiᚋgraphᚋmodelᚐLoginInput(ctx context.Context, v interface{}) (model.LoginInput, error) {
 	res, err := ec.unmarshalInputLoginInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -4066,6 +4328,13 @@ func (ec *executionContext) marshalOBoolean2ᚖbool(ctx context.Context, sel ast
 	}
 	res := graphql.MarshalBoolean(*v)
 	return res
+}
+
+func (ec *executionContext) marshalOErrorExtensions2ᚖgithubᚗcomᚋgrowteerᚋapiᚋgraphᚋmodelᚐErrorExtensions(ctx context.Context, sel ast.SelectionSet, v *model.ErrorExtensions) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._ErrorExtensions(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalOLocationInput2ᚖgithubᚗcomᚋgrowteerᚋapiᚋgraphᚋmodelᚐLocationInput(ctx context.Context, v interface{}) (*model.LocationInput, error) {

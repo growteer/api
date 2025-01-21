@@ -10,6 +10,20 @@ type Mutation {
   signup(input: SignupInput!): AuthResult!
 }
 
+enum ErrorType {
+  BAD_REQUEST
+  INTERNAL_SERVER_ERROR
+}
+
+type ErrorExtensions {
+  code: String!
+  type: ErrorType!
+}
+
+extend type Error {
+  extensions: ErrorExtensions
+}
+
 input NonceInput {
   address: String!
 }
