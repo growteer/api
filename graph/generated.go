@@ -3197,20 +3197,13 @@ func (ec *executionContext) unmarshalInputSignupInput(ctx context.Context, obj i
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"login", "profile"}
+	fieldsInOrder := [...]string{"profile"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
 			continue
 		}
 		switch k {
-		case "login":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("login"))
-			data, err := ec.unmarshalNLoginInput2ᚖgithubᚗcomᚋgrowteerᚋapiᚋgraphᚋmodelᚐLoginInput(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.Login = data
 		case "profile":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("profile"))
 			data, err := ec.unmarshalNUserProfileInput2ᚖgithubᚗcomᚋgrowteerᚋapiᚋgraphᚋmodelᚐUserProfileInput(ctx, v)
@@ -4000,11 +3993,6 @@ func (ec *executionContext) marshalNErrorType2githubᚗcomᚋgrowteerᚋapiᚋgr
 func (ec *executionContext) unmarshalNLoginInput2githubᚗcomᚋgrowteerᚋapiᚋgraphᚋmodelᚐLoginInput(ctx context.Context, v interface{}) (model.LoginInput, error) {
 	res, err := ec.unmarshalInputLoginInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) unmarshalNLoginInput2ᚖgithubᚗcomᚋgrowteerᚋapiᚋgraphᚋmodelᚐLoginInput(ctx context.Context, v interface{}) (*model.LoginInput, error) {
-	res, err := ec.unmarshalInputLoginInput(ctx, v)
-	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalNNonceInput2githubᚗcomᚋgrowteerᚋapiᚋgraphᚋmodelᚐNonceInput(ctx context.Context, v interface{}) (model.NonceInput, error) {
