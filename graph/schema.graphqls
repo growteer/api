@@ -48,7 +48,6 @@ type AuthResult {
 }
 
 input SignupInput {
-  login: LoginInput!
   profile: UserProfileInput!
 }
 

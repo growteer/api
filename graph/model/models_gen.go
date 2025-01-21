@@ -53,7 +53,6 @@ type RefreshInput struct {
 }
 
 type SignupInput struct {
-	Login   *LoginInput       `json:"login"`
 	Profile *UserProfileInput `json:"profile"`
 }
 
