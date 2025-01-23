@@ -23,7 +23,6 @@ func (s *Service) Login(ctx context.Context, did *web3util.DID, message string, 
 	_, err = s.userRepo.GetByDID(ctx, did)
 	if err != nil {
 		_ = gqlutil.BadInputError(ctx, "user not signed up", gqlutil.ErrCodeUserNotSignedUp, err)
-		return "", "", nil
 	}
 
 	return s.createNewTokens(ctx, did)

@@ -8,6 +8,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/99designs/gqlgen/graphql"
 	"github.com/growteer/api/graph/model"
 	"github.com/growteer/api/pkg/gqlutil"
 	"github.com/growteer/api/pkg/web3util"
@@ -40,11 +41,14 @@ func (r *mutationResolver) Login(ctx context.Context, input model.LoginInput) (*
 	did := web3util.NewDID(web3util.DIDMethodPKH, web3util.NamespaceSolana, input.Address)
 
 	sessionToken, refreshToken, err := r.authnService.Login(ctx, did, input.Message, input.Signature)
+	if err != nil {
+		graphql.AddError(ctx, err)
+	}
 
 	return &model.AuthResult{
 		SessionToken: sessionToken,
 		RefreshToken: refreshToken,
-	}, err
+	}, nil
 }
 
 // Refresh is the resolver for the refresh field.
