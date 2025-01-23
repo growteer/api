@@ -25,7 +25,7 @@ type Profile struct {
 	CreatedAt time.Time `bson:"createdAt"`
 }
 
-func (r *Repository) Create(ctx context.Context, profile Profile) (*Profile, error) {
+func (r *repository) Create(ctx context.Context, profile Profile) (*Profile, error) {
 	profile.CreatedAt = time.Now()
 	_, err := r.profiles.InsertOne(ctx, profile)
 	if err != nil {
@@ -35,7 +35,7 @@ func (r *Repository) Create(ctx context.Context, profile Profile) (*Profile, err
 	return &profile, nil
 }
 
-func (r *Repository) GetByDID(ctx context.Context, did *web3util.DID) (*Profile, error) {
+func (r *repository) GetByDID(ctx context.Context, did *web3util.DID) (*Profile, error) {
 	var result *Profile
 	err := r.profiles.FindOne(ctx, bson.M{"_id": did.String()}).Decode(result)
 	if err != nil {
