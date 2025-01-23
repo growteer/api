@@ -14,6 +14,7 @@ import (
 
 type Resolver struct{
 	authnService *authn.Service
+	profileService *profiles.Service
 }
 
 func NewResolver(db *mongo.Database, env *environment.Environment) *Resolver {
@@ -28,5 +29,6 @@ func NewResolver(db *mongo.Database, env *environment.Environment) *Resolver {
 
 	return &Resolver{
 		authnService: authn.NewService(authnRepo, tokenProvider, profileRepo),
+		profileService: profiles.NewService(profileRepo),
 	}
 }

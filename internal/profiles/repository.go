@@ -6,12 +6,12 @@ import (
 
 const db_collection_profiles = "profiles"
 
-type Repository struct {
+type repository struct {
 	profiles *mongo.Collection
 }
 
-func NewRepository(db *mongo.Database) *Repository {
-	repo := &Repository{
+func NewRepository(db *mongo.Database) *repository {
+	repo := &repository{
 		profiles: db.Collection(db_collection_profiles),
 	}
 
