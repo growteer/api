@@ -20,6 +20,7 @@ tasks:
     cmds:
       - go run ./cmd/main.go
     env:
+      ALLOWED_ORIGINS: "http://localhost:5173"
       HTTP_PORT: 8080
       MONGO_HOST: localhost
       MONGO_PORT: 27017

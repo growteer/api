@@ -24,7 +24,8 @@ func main() {
 
 	router := chi.NewRouter()
 	router.Use(cors.New(cors.Options{
-		AllowedOrigins:   []string{"*"},
+		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type"},
+		AllowedOrigins:   env.Server.AllowedOrigins,
 		AllowedMethods:   []string{"GET", "POST", "OPTIONS"},
 		AllowCredentials: true,
 	}).Handler)
