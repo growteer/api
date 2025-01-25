@@ -43,6 +43,11 @@ spec:
           readinessProbe:
             {{- toYaml .Values.readinessProbe | nindent 12 }}
           env:
+            - name: ALLOWED_ORIGINS
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "api.fullname" . }}
+                  key: ALLOWED_ORIGINS
             - name: HTTP_PORT
               valueFrom:
                 configMapKeyRef:

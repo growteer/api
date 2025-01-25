@@ -9,6 +9,7 @@ http:
   port: 8080
 
 env:
+  allowedOrigins: "http://localhost:5173"
   db:
     host: mongodb.infra.svc.cluster.local
     port: 27017
