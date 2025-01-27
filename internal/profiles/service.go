@@ -3,7 +3,6 @@ package profiles
 import (
 	"context"
 
-	"github.com/growteer/api/pkg/gqlutil"
 	"github.com/growteer/api/pkg/web3util"
 )
 
@@ -25,7 +24,7 @@ func NewService(repo Repository) *Service {
 func (s *Service) CreateProfile(ctx context.Context, profile Profile) (*Profile, error) {
 	savedProfile, err := s.repo.Create(ctx, profile)
 	if err != nil {
-		return nil, gqlutil.InternalError(ctx, "signup.profile_not_saved", err)
+		return nil, err
 	}
 
 	return savedProfile, nil
