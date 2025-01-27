@@ -14,15 +14,17 @@ type Profile struct {
 	LastName string `bson:"lastName"`
 	DateOfBirth time.Time `bson:"dateOfBirth"`
 	PrimaryEmail string `bson:"primaryEmail"`
-	Location struct {
-		Country string `bson:"country"`
-		PostalCode string `bson:"postalCode"`
-		City string `bson:"city"`
-	} `bson:"location,omitempty"`
+	Location Location `bson:"location,omitempty"`
 	Website string `bson:"website,omitempty"`
 	PersonalGoal string `bson:"personalGoal,omitempty"`
 	About string `bson:"about,omitempty"`
 	CreatedAt time.Time `bson:"createdAt"`
+}
+
+type Location struct {
+	Country string `bson:"country"`
+	PostalCode string `bson:"postalCode"`
+	City string `bson:"city"`
 }
 
 func (r *repository) Create(ctx context.Context, profile Profile) (*Profile, error) {

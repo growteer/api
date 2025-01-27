@@ -7,7 +7,7 @@ type Mutation {
   generateNonce(input: NonceInput!): NonceResult!
   login(input: LoginInput!): AuthResult!
   refresh(input: RefreshInput): AuthResult!
-  signup(input: SignupInput!): AuthResult!
+  signup(input: SignupInput!): UserProfile!
 }
 
 enum ErrorType {
@@ -49,21 +49,28 @@ type AuthResult {
 }
 
 input SignupInput {
-  profile: UserProfileInput!
-}
-
-input UserProfileInput {
   firstname: String!
   lastname: String!
   dateOfBirth: String!
   primaryEmail: String!
-  location: LocationInput
+  country: String!
+  postalCode: String
+  city: String
+  website: String
+}
+
+type UserProfile {
+  firstname: String!
+  lastname: String!
+  dateOfBirth: String!
+  primaryEmail: String!
+  location: Location
   website: String
   personalGoal: String
   about: String
 }
 
-input LocationInput {
+type Location {
   country: String!
   postalCode: String
   city: String

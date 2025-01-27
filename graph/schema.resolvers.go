@@ -7,9 +7,12 @@ package graph
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/growteer/api/graph/model"
+	"github.com/growteer/api/infrastructure/session"
+	"github.com/growteer/api/internal/profiles"
 	"github.com/growteer/api/pkg/gqlutil"
 	"github.com/growteer/api/pkg/web3util"
 )
@@ -65,8 +68,48 @@ func (r *mutationResolver) Refresh(ctx context.Context, input *model.RefreshInpu
 }
 
 // Signup is the resolver for the signup field.
-func (r *mutationResolver) Signup(ctx context.Context, input model.SignupInput) (*model.AuthResult, error) {
-	panic(fmt.Errorf("not implemented: Signup - signup"))
+func (r *mutationResolver) Signup(ctx context.Context, input model.SignupInput) (*model.UserProfile, error) {
+	did, err := session.GetAuthenticatedDID(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	dateOfBirth, err := time.Parse(time.RFC3339, input.DateOfBirth)
+	if err != nil {
+		return nil, gqlutil.BadInputError(ctx, "invalidly formatted date of birth", gqlutil.ErrCodeInvalidDateTimeFormat, err)
+	}
+
+	newProfile := profiles.Profile{
+		DID:          did.String(),
+		FirstName:    input.Firstname,
+		LastName:     input.Lastname,
+		DateOfBirth:  dateOfBirth,
+		PrimaryEmail: input.PrimaryEmail,
+		Location: profiles.Location{
+			Country:    input.Country,
+			PostalCode: *input.PostalCode,
+			City:       *input.City,
+		},
+		Website: *input.Website,
+	}
+
+	savedProfile, err := r.profileService.CreateProfile(ctx, newProfile)
+	if err != nil {
+		return nil, gqlutil.InternalError(ctx, err.Error(), err)
+	}
+
+	gqlProfileModel := &model.UserProfile{
+		Firstname:    savedProfile.FirstName,
+		Lastname:     savedProfile.LastName,
+		PrimaryEmail: savedProfile.PrimaryEmail,
+		Location: &model.Location{
+			Country:    savedProfile.Location.Country,
+			PostalCode: &savedProfile.Location.PostalCode,
+			City:       &savedProfile.Location.City,
+		},
+	}
+
+	return gqlProfileModel, nil
 }
 
 // Nonce is the resolver for the nonce field.

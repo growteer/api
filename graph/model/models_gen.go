@@ -22,7 +22,7 @@ type ErrorExtensions struct {
 	Type ErrorType `json:"type"`
 }
 
-type LocationInput struct {
+type Location struct {
 	Country    string  `json:"country"`
 	PostalCode *string `json:"postalCode,omitempty"`
 	City       *string `json:"city,omitempty"`
@@ -53,18 +53,25 @@ type RefreshInput struct {
 }
 
 type SignupInput struct {
-	Profile *UserProfileInput `json:"profile"`
+	Firstname    string  `json:"firstname"`
+	Lastname     string  `json:"lastname"`
+	DateOfBirth  string  `json:"dateOfBirth"`
+	PrimaryEmail string  `json:"primaryEmail"`
+	Country      string  `json:"country"`
+	PostalCode   *string `json:"postalCode,omitempty"`
+	City         *string `json:"city,omitempty"`
+	Website      *string `json:"website,omitempty"`
 }
 
-type UserProfileInput struct {
-	Firstname    string         `json:"firstname"`
-	Lastname     string         `json:"lastname"`
-	DateOfBirth  string         `json:"dateOfBirth"`
-	PrimaryEmail string         `json:"primaryEmail"`
-	Location     *LocationInput `json:"location,omitempty"`
-	Website      *string        `json:"website,omitempty"`
-	PersonalGoal *string        `json:"personalGoal,omitempty"`
-	About        *string        `json:"about,omitempty"`
+type UserProfile struct {
+	Firstname    string    `json:"firstname"`
+	Lastname     string    `json:"lastname"`
+	DateOfBirth  string    `json:"dateOfBirth"`
+	PrimaryEmail string    `json:"primaryEmail"`
+	Location     *Location `json:"location,omitempty"`
+	Website      *string   `json:"website,omitempty"`
+	PersonalGoal *string   `json:"personalGoal,omitempty"`
+	About        *string   `json:"about,omitempty"`
 }
 
 type ErrorType string
