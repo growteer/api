@@ -11,6 +11,7 @@ type ErrType = string
 type ErrCode = string
 
 const (
+	errTypeUnauthenticated ErrType = "UNAUTHENTICATED"
 	errTypeBadRequest ErrType = "BAD_REQUEST"
 	errTypeInternal ErrType = "INTERNAL_SERVER_ERROR"
 )
@@ -38,6 +39,21 @@ func InternalError(ctx context.Context, message string, err error) error {
 		Extensions: map[string]interface{}{
 			"type": errTypeInternal,
 			"code": ErrCodeInternalError,
+		},
+	}
+
+	graphql.AddError(ctx, gqlErr)
+	return gqlErr
+}
+
+func AuthenticationError(ctx context.Context, message string, err error) error {
+	gqlErr := &gqlerror.Error{
+		Err: err,
+		Message: message,
+		Path: graphql.GetPath(ctx),
+		Extensions: map[string]interface{}{
+			"type": errTypeUnauthenticated,
+			"code": ErrCodeUnauthenticated,
 		},
 	}
 

@@ -72,16 +72,18 @@ type ErrorType string
 const (
 	ErrorTypeBadRequest          ErrorType = "BAD_REQUEST"
 	ErrorTypeInternalServerError ErrorType = "INTERNAL_SERVER_ERROR"
+	ErrorTypeUnauthenticated     ErrorType = "UNAUTHENTICATED"
 )
 
 var AllErrorType = []ErrorType{
 	ErrorTypeBadRequest,
 	ErrorTypeInternalServerError,
+	ErrorTypeUnauthenticated,
 }
 
 func (e ErrorType) IsValid() bool {
 	switch e {
-	case ErrorTypeBadRequest, ErrorTypeInternalServerError:
+	case ErrorTypeBadRequest, ErrorTypeInternalServerError, ErrorTypeUnauthenticated:
 		return true
 	}
 	return false

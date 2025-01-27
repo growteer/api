@@ -21,3 +21,20 @@ func (p *Provider) NewSessionToken(did *web3util.DID) (string, error) {
 
 	return tokenString, nil
 }
+
+func (p *Provider) ParseSessionToken(token string) (claims *jwt.RegisteredClaims, err error) {
+	claims = &jwt.RegisteredClaims{}
+	parsedToken, err := jwt.ParseWithClaims(token, claims, func(token *jwt.Token) (interface{}, error) {
+		return p.secretKey, nil
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	if !parsedToken.Valid {
+		return nil, fmt.Errorf("invalid refresh token")
+	}
+
+	return claims, nil
+}

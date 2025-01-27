@@ -14,6 +14,8 @@ import (
 	"github.com/growteer/api/graph"
 	"github.com/growteer/api/infrastructure/environment"
 	"github.com/growteer/api/infrastructure/mongodb"
+	"github.com/growteer/api/infrastructure/session"
+	"github.com/growteer/api/infrastructure/tokens"
 	"github.com/growteer/api/pkg/gqlutil"
 	"github.com/rs/cors"
 	"github.com/vektah/gqlparser/v2/ast"
@@ -32,7 +34,9 @@ func main() {
 
 
 	db := mongodb.NewDB(env.Mongo)
-	resolver := graph.NewResolver(db, env)
+	tokenProvider := tokens.NewProvider(env.Token.JWTSecret, env.Token.SessionTTLMinutes, env.Token.RefreshTTLMinutes)
+
+	resolver := graph.NewResolver(db, tokenProvider)
 	server := handler.New(graph.NewExecutableSchema(graph.Config{Resolvers: resolver}))
 	server.SetErrorPresenter(gqlutil.PresentError)
 	server.SetRecoverFunc(gqlutil.Recover)
@@ -48,6 +52,7 @@ func main() {
 		Cache: lru.New[string](100),
 	})
 
+	router.Use(session.UserSessionMiddleware(tokenProvider))
 	router.Handle("/", playground.Handler("GraphQL playground", "/query"))
 	router.Handle("/query", server)
 
