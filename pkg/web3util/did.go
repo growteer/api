@@ -23,33 +23,30 @@ func (d *DID) String() string {
 	return fmt.Sprintf("did:%s:%s:%s", d.Method, d.Namespace, d.Address)
 }
 
-func (d DID) MarshalJSON() ([]byte, error) {
-	return []byte(d.String()), nil
-}
-
-func (d *DID) UnmarshalJSON(data []byte) error {
-	didElements := strings.Split(string(data), ":")
+func DIDFromString(rawDID string) (*DID, error) {
+	didElements := strings.Split(rawDID, ":")
 	if len(didElements) != 4 {
-		return fmt.Errorf("failed unmarshalling did, invalid amount of path elements")
+		return nil, fmt.Errorf("failed converting did string to struct, invalid amount of path elements")
 	}
 
 	method := DIDMethod(didElements[1])
 	if method != DIDMethodPKH {
-		return fmt.Errorf("failed unmarshalling did, invalid method")
+		return nil, fmt.Errorf("failed converting did string to struct, invalid method")
 	}
-	d.Method = method
 
 	namespace := Namespace(didElements[2])
 	if namespace != NamespaceSolana {
-		return fmt.Errorf("failed unmarshalling did, invalid namespace")
+		return nil, fmt.Errorf("failed converting did string to struct, invalid namespace")
 	}
-	d.Namespace = namespace
 
 	address := didElements[3]
 	if err := VerifySolanaPublicKey(address); err != nil {
-		return fmt.Errorf("failed unmarshalling did, invalid address")
+		return nil, fmt.Errorf("failed converting did string to struct, invalid address")
 	}
-	d.Address = address
 
-	return nil
+	return &DID{
+		Method: method,
+		Namespace: namespace,
+		Address: address,
+	}, nil
 }
