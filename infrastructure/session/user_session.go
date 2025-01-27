@@ -65,13 +65,13 @@ func didFromContext(ctx context.Context) (*web3util.DID, error) {
 	if !ok {
 		err := fmt.Errorf("no did found in context")
 		slog.Warn(err.Error())
-		
+
 		return nil, err
 	}
 
-	var did *web3util.DID
-	if err := did.UnmarshalJSON([]byte(rawDid)); err != nil {
-		slog.Warn("could not unmarshal did from context", slog.Attr{
+	did, err := web3util.DIDFromString(rawDid)
+	if err != nil {
+		slog.Error(err.Error(), slog.Attr{
 			Key: "did",
 			Value: slog.StringValue(rawDid),
 		})

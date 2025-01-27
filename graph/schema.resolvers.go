@@ -74,9 +74,19 @@ func (r *mutationResolver) Signup(ctx context.Context, input model.SignupInput) 
 		return nil, err
 	}
 
-	dateOfBirth, err := time.Parse(time.RFC3339, input.DateOfBirth)
+	dateOfBirth, err := time.Parse(time.DateOnly, input.DateOfBirth)
 	if err != nil {
 		return nil, gqlutil.BadInputError(ctx, "invalidly formatted date of birth", gqlutil.ErrCodeInvalidDateTimeFormat, err)
+	}
+
+	location := profiles.Location{
+		Country: input.Country,
+	}
+	if input.PostalCode != nil {
+		location.PostalCode = *input.PostalCode
+	}
+	if input.City != nil {
+		location.City = *input.City
 	}
 
 	newProfile := profiles.Profile{
@@ -85,12 +95,11 @@ func (r *mutationResolver) Signup(ctx context.Context, input model.SignupInput) 
 		LastName:     input.Lastname,
 		DateOfBirth:  dateOfBirth,
 		PrimaryEmail: input.PrimaryEmail,
-		Location: profiles.Location{
-			Country:    input.Country,
-			PostalCode: *input.PostalCode,
-			City:       *input.City,
-		},
-		Website: *input.Website,
+		Location: location,
+	}
+
+	if input.Website != nil {
+		newProfile.Website = *input.Website
 	}
 
 	savedProfile, err := r.profileService.CreateProfile(ctx, newProfile)

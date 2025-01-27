@@ -2,8 +2,8 @@ package authn
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
+	"log/slog"
 
 	"github.com/growteer/api/pkg/gqlutil"
 	"github.com/growteer/api/pkg/web3util"
@@ -15,9 +15,9 @@ func (s *Service) RefreshSession(ctx context.Context, refreshToken string) (newS
 		return "", "", gqlutil.BadInputError(ctx, "could not parse refresh token", gqlutil.ErrCodeInvalidCredentials, err)
 	}
 
-	serializedDid := []byte(claims.Subject)
-	var did web3util.DID
-	if err = json.Unmarshal(serializedDid, &did); err != nil {
+	did, err := web3util.DIDFromString(claims.Subject)
+	if err != nil {
+		slog.Error(err.Error())
 		return "", "", gqlutil.InternalError(ctx, "could not parse did from refresh token", err)
 	}
 
@@ -25,7 +25,7 @@ func (s *Service) RefreshSession(ctx context.Context, refreshToken string) (newS
 		return "", "", gqlutil.BadInputError(ctx, "invalid solana address in did", gqlutil.ErrCodeInvalidCredentials, err)
 	}
 
-	savedToken, err := s.authRepo.GetRefreshTokenByDID(ctx, &did)
+	savedToken, err := s.authRepo.GetRefreshTokenByDID(ctx, did)
 	if err != nil {
 		return "", "", gqlutil.BadInputError(ctx, "invalid refresh token", gqlutil.ErrCodeInvalidCredentials, err)
 	}
@@ -34,6 +34,6 @@ func (s *Service) RefreshSession(ctx context.Context, refreshToken string) (newS
 		return "", "", gqlutil.BadInputError(ctx, "invalid refresh token", gqlutil.ErrCodeInvalidCredentials, fmt.Errorf("refresh token does not match the one in the database"))
 	}
 
-	return s.createNewTokens(ctx, &did)
+	return s.createNewTokens(ctx, did)
 }
 
