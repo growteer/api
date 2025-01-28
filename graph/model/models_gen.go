@@ -68,7 +68,7 @@ type UserProfile struct {
 	Lastname     string    `json:"lastname"`
 	DateOfBirth  string    `json:"dateOfBirth"`
 	PrimaryEmail string    `json:"primaryEmail"`
-	Location     *Location `json:"location,omitempty"`
+	Location     *Location `json:"location"`
 	Website      *string   `json:"website,omitempty"`
 	PersonalGoal *string   `json:"personalGoal,omitempty"`
 	About        *string   `json:"about,omitempty"`

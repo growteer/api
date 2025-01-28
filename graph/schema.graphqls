@@ -63,7 +63,7 @@ type UserProfile {
   lastname: String!
   dateOfBirth: String!
   primaryEmail: String!
-  location: Location
+  location: Location!
   website: String
   personalGoal: String
   about: String
