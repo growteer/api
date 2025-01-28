@@ -1,6 +1,5 @@
 type Query {
-  nonce(address: String!): NonceResult!
-  nonces: [NonceResult]
+  userProfile(userDID: String!): UserProfile!
 }
 
 type Mutation {

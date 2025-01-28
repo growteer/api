@@ -79,8 +79,7 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
-		Nonce  func(childComplexity int, address string) int
-		Nonces func(childComplexity int) int
+		UserProfile func(childComplexity int, did string) int
 	}
 
 	UserProfile struct {
@@ -102,8 +101,7 @@ type MutationResolver interface {
 	Signup(ctx context.Context, input model.SignupInput) (*model.UserProfile, error)
 }
 type QueryResolver interface {
-	Nonce(ctx context.Context, address string) (*model.NonceResult, error)
-	Nonces(ctx context.Context) ([]*model.NonceResult, error)
+	UserProfile(ctx context.Context, did string) (*model.UserProfile, error)
 }
 
 type executableSchema struct {
@@ -236,24 +234,17 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.NonceResult.Nonce(childComplexity), true
 
-	case "Query.nonce":
-		if e.complexity.Query.Nonce == nil {
+	case "Query.userProfile":
+		if e.complexity.Query.UserProfile == nil {
 			break
 		}
 
-		args, err := ec.field_Query_nonce_args(context.TODO(), rawArgs)
+		args, err := ec.field_Query_userProfile_args(context.TODO(), rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
-		return e.complexity.Query.Nonce(childComplexity, args["address"].(string)), true
-
-	case "Query.nonces":
-		if e.complexity.Query.Nonces == nil {
-			break
-		}
-
-		return e.complexity.Query.Nonces(childComplexity), true
+		return e.complexity.Query.UserProfile(childComplexity, args["did"].(string)), true
 
 	case "UserProfile.about":
 		if e.complexity.UserProfile.About == nil {
@@ -554,22 +545,22 @@ func (ec *executionContext) field_Query___type_argsName(
 	return zeroVal, nil
 }
 
-func (ec *executionContext) field_Query_nonce_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Query_userProfile_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	arg0, err := ec.field_Query_nonce_argsAddress(ctx, rawArgs)
+	arg0, err := ec.field_Query_userProfile_argsDid(ctx, rawArgs)
 	if err != nil {
 		return nil, err
 	}
-	args["address"] = arg0
+	args["did"] = arg0
 	return args, nil
 }
-func (ec *executionContext) field_Query_nonce_argsAddress(
+func (ec *executionContext) field_Query_userProfile_argsDid(
 	ctx context.Context,
 	rawArgs map[string]interface{},
 ) (string, error) {
-	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("address"))
-	if tmp, ok := rawArgs["address"]; ok {
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("did"))
+	if tmp, ok := rawArgs["did"]; ok {
 		return ec.unmarshalNString2string(ctx, tmp)
 	}
 
@@ -1278,8 +1269,8 @@ func (ec *executionContext) fieldContext_NonceResult_nonce(_ context.Context, fi
 	return fc, nil
 }
 
-func (ec *executionContext) _Query_nonce(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Query_nonce(ctx, field)
+func (ec *executionContext) _Query_userProfile(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_userProfile(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -1292,7 +1283,7 @@ func (ec *executionContext) _Query_nonce(ctx context.Context, field graphql.Coll
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Nonce(rctx, fc.Args["address"].(string))
+		return ec.resolvers.Query().UserProfile(rctx, fc.Args["did"].(string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1304,12 +1295,12 @@ func (ec *executionContext) _Query_nonce(ctx context.Context, field graphql.Coll
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*model.NonceResult)
+	res := resTmp.(*model.UserProfile)
 	fc.Result = res
-	return ec.marshalNNonceResult2ᚖgithubᚗcomᚋgrowteerᚋapiᚋgraphᚋmodelᚐNonceResult(ctx, field.Selections, res)
+	return ec.marshalNUserProfile2ᚖgithubᚗcomᚋgrowteerᚋapiᚋgraphᚋmodelᚐUserProfile(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Query_nonce(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Query_userProfile(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Query",
 		Field:      field,
@@ -1317,10 +1308,24 @@ func (ec *executionContext) fieldContext_Query_nonce(ctx context.Context, field 
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "nonce":
-				return ec.fieldContext_NonceResult_nonce(ctx, field)
+			case "firstname":
+				return ec.fieldContext_UserProfile_firstname(ctx, field)
+			case "lastname":
+				return ec.fieldContext_UserProfile_lastname(ctx, field)
+			case "dateOfBirth":
+				return ec.fieldContext_UserProfile_dateOfBirth(ctx, field)
+			case "primaryEmail":
+				return ec.fieldContext_UserProfile_primaryEmail(ctx, field)
+			case "location":
+				return ec.fieldContext_UserProfile_location(ctx, field)
+			case "website":
+				return ec.fieldContext_UserProfile_website(ctx, field)
+			case "personalGoal":
+				return ec.fieldContext_UserProfile_personalGoal(ctx, field)
+			case "about":
+				return ec.fieldContext_UserProfile_about(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type NonceResult", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type UserProfile", field.Name)
 		},
 	}
 	defer func() {
@@ -1330,54 +1335,9 @@ func (ec *executionContext) fieldContext_Query_nonce(ctx context.Context, field 
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Query_nonce_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = ec.field_Query_userProfile_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Query_nonces(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Query_nonces(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Nonces(rctx)
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.([]*model.NonceResult)
-	fc.Result = res
-	return ec.marshalONonceResult2ᚕᚖgithubᚗcomᚋgrowteerᚋapiᚋgraphᚋmodelᚐNonceResult(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Query_nonces(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Query",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "nonce":
-				return ec.fieldContext_NonceResult_nonce(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type NonceResult", field.Name)
-		},
 	}
 	return fc, nil
 }
@@ -4106,7 +4066,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Query")
-		case "nonce":
+		case "userProfile":
 			field := field
 
 			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
@@ -4115,29 +4075,10 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Query_nonce(ctx, field)
+				res = ec._Query_userProfile(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
-				return res
-			}
-
-			rrm := func(ctx context.Context) graphql.Marshaler {
-				return ec.OperationContext.RootResolverMiddleware(ctx,
-					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
-		case "nonces":
-			field := field
-
-			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Query_nonces(ctx, field)
 				return res
 			}
 
@@ -4954,54 +4895,6 @@ func (ec *executionContext) marshalOLocation2ᚖgithubᚗcomᚋgrowteerᚋapiᚋ
 		return graphql.Null
 	}
 	return ec._Location(ctx, sel, v)
-}
-
-func (ec *executionContext) marshalONonceResult2ᚕᚖgithubᚗcomᚋgrowteerᚋapiᚋgraphᚋmodelᚐNonceResult(ctx context.Context, sel ast.SelectionSet, v []*model.NonceResult) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalONonceResult2ᚖgithubᚗcomᚋgrowteerᚋapiᚋgraphᚋmodelᚐNonceResult(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
-
-	return ret
-}
-
-func (ec *executionContext) marshalONonceResult2ᚖgithubᚗcomᚋgrowteerᚋapiᚋgraphᚋmodelᚐNonceResult(ctx context.Context, sel ast.SelectionSet, v *model.NonceResult) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	return ec._NonceResult(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalORefreshInput2ᚖgithubᚗcomᚋgrowteerᚋapiᚋgraphᚋmodelᚐRefreshInput(ctx context.Context, v interface{}) (*model.RefreshInput, error) {
