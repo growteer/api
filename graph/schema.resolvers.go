@@ -6,6 +6,7 @@ package graph
 
 import (
 	"context"
+	"log/slog"
 	"time"
 
 	"github.com/99designs/gqlgen/graphql"
@@ -126,6 +127,38 @@ func (r *queryResolver) UserProfile(ctx context.Context, userDid string) (*model
 	if err != nil {
 		return nil, err
 	}
+
+	parsedUserDID, err := web3util.DIDFromString(userDid)
+	if err != nil {
+		slog.Warn(err.Error(),
+			slog.Attr{Key: "profile", Value: slog.StringValue(userDid)},
+			slog.Attr{Key: "user", Value: slog.StringValue(did.String())},
+		)
+
+		return nil, gqlutil.BadInputError(ctx, "invalid did provided", gqlutil.ErrCodeInvalidInput, err)
+	}
+
+	profile, err := r.profileService.GetProfile(ctx, parsedUserDID)
+	if err != nil {
+		return nil, err
+	}
+
+	profileDTO := &model.UserProfile{
+		Firstname:    profile.FirstName,
+		Lastname:     profile.LastName,
+		PrimaryEmail: profile.PrimaryEmail,
+		DateOfBirth:  profile.DateOfBirth.String(),
+		Location: &model.Location{
+			Country:    profile.Location.Country,
+			PostalCode: &profile.Location.PostalCode,
+			City:       &profile.Location.City,
+		},
+		About:        &profile.About,
+		PersonalGoal: &profile.PersonalGoal,
+		Website:      &profile.Website,
+	}
+
+	return profileDTO, nil
 }
 
 // Mutation returns MutationResolver implementation.

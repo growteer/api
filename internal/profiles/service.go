@@ -3,6 +3,8 @@ package profiles
 import (
 	"context"
 
+	"github.com/growteer/api/internal/authz"
+	"github.com/growteer/api/pkg/gqlutil"
 	"github.com/growteer/api/pkg/web3util"
 )
 
@@ -12,7 +14,8 @@ type Repository interface {
 }
 
 type Service struct {
-	repo Repository
+	authz *authz.Profiles
+	repo  Repository
 }
 
 func NewService(repo Repository) *Service {
@@ -28,4 +31,12 @@ func (s *Service) CreateProfile(ctx context.Context, profile Profile) (*Profile,
 	}
 
 	return savedProfile, nil
+}
+
+func (s *Service) GetProfile(ctx context.Context, did *web3util.DID) (*Profile, error) {
+	if !s.authz.MayRead(ctx, did) {
+		return nil, gqlutil.NotFoundError(ctx, nil)
+	}
+
+	return s.repo.GetByDID(ctx, did)
 }
