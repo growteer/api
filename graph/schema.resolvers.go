@@ -6,7 +6,6 @@ package graph
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"github.com/99designs/gqlgen/graphql"
@@ -95,7 +94,7 @@ func (r *mutationResolver) Signup(ctx context.Context, input model.SignupInput) 
 		LastName:     input.Lastname,
 		DateOfBirth:  dateOfBirth,
 		PrimaryEmail: input.PrimaryEmail,
-		Location: location,
+		Location:     location,
 	}
 
 	if input.Website != nil {
@@ -121,14 +120,12 @@ func (r *mutationResolver) Signup(ctx context.Context, input model.SignupInput) 
 	return gqlProfileModel, nil
 }
 
-// Nonce is the resolver for the nonce field.
-func (r *queryResolver) Nonce(ctx context.Context, address string) (*model.NonceResult, error) {
-	panic(fmt.Errorf("not implemented: Nonce - nonce"))
-}
-
-// Nonces is the resolver for the nonces field.
-func (r *queryResolver) Nonces(ctx context.Context) ([]*model.NonceResult, error) {
-	panic(fmt.Errorf("not implemented: Nonces - nonces"))
+// UserProfile is the resolver for the userProfile field.
+func (r *queryResolver) UserProfile(ctx context.Context, userDid string) (*model.UserProfile, error) {
+	did, err := session.GetAuthenticatedDID(ctx)
+	if err != nil {
+		return nil, err
+	}
 }
 
 // Mutation returns MutationResolver implementation.
