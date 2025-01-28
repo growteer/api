@@ -43,7 +43,7 @@ func UserSessionMiddleware(provider *tokens.Provider) func(http.Handler) http.Ha
 }
 
 func GetAuthenticatedDID(ctx context.Context) (*web3util.DID, error) {
-	did, err := didFromContext(ctx)
+	did, err := DIDFromContext(ctx)
 	if err != nil {
 		return nil, gqlutil.AuthenticationError(ctx, err.Error(), err)
 	}
@@ -60,12 +60,10 @@ func GetAuthenticatedDID(ctx context.Context) (*web3util.DID, error) {
 	return did, nil
 }
 
-func didFromContext(ctx context.Context) (*web3util.DID, error) {
+func DIDFromContext(ctx context.Context) (*web3util.DID, error) {
 	rawDid, ok := ctx.Value(ctxKeyUserDID).(string)
 	if !ok {
 		err := fmt.Errorf("no did found in context")
-		slog.Warn(err.Error())
-
 		return nil, err
 	}
 

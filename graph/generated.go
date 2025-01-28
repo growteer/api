@@ -79,7 +79,7 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
-		UserProfile func(childComplexity int, did string) int
+		UserProfile func(childComplexity int, userDid string) int
 	}
 
 	UserProfile struct {
@@ -101,7 +101,7 @@ type MutationResolver interface {
 	Signup(ctx context.Context, input model.SignupInput) (*model.UserProfile, error)
 }
 type QueryResolver interface {
-	UserProfile(ctx context.Context, did string) (*model.UserProfile, error)
+	UserProfile(ctx context.Context, userDid string) (*model.UserProfile, error)
 }
 
 type executableSchema struct {
@@ -244,7 +244,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.UserProfile(childComplexity, args["did"].(string)), true
+		return e.complexity.Query.UserProfile(childComplexity, args["userDID"].(string)), true
 
 	case "UserProfile.about":
 		if e.complexity.UserProfile.About == nil {
@@ -548,19 +548,19 @@ func (ec *executionContext) field_Query___type_argsName(
 func (ec *executionContext) field_Query_userProfile_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	arg0, err := ec.field_Query_userProfile_argsDid(ctx, rawArgs)
+	arg0, err := ec.field_Query_userProfile_argsUserDid(ctx, rawArgs)
 	if err != nil {
 		return nil, err
 	}
-	args["did"] = arg0
+	args["userDID"] = arg0
 	return args, nil
 }
-func (ec *executionContext) field_Query_userProfile_argsDid(
+func (ec *executionContext) field_Query_userProfile_argsUserDid(
 	ctx context.Context,
 	rawArgs map[string]interface{},
 ) (string, error) {
-	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("did"))
-	if tmp, ok := rawArgs["did"]; ok {
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("userDID"))
+	if tmp, ok := rawArgs["userDID"]; ok {
 		return ec.unmarshalNString2string(ctx, tmp)
 	}
 
@@ -1283,7 +1283,7 @@ func (ec *executionContext) _Query_userProfile(ctx context.Context, field graphq
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().UserProfile(rctx, fc.Args["did"].(string))
+		return ec.resolvers.Query().UserProfile(rctx, fc.Args["userDID"].(string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
