@@ -18,7 +18,7 @@ func PresentError(ctx context.Context, err error) *gqlerror.Error {
 func Recover(ctx context.Context, err interface{}) error {
 	asErr, ok := err.(error)
 	if !ok {
-		asErr = fmt.Errorf("internal server error: %v", err)
+		asErr = InternalError(ctx, "internal server error", fmt.Errorf("%v", err))
 	}
 
 	slog.Error(asErr.Error())

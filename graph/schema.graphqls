@@ -7,19 +7,30 @@ type Mutation {
   generateNonce(input: NonceInput!): NonceResult!
   login(input: LoginInput!): AuthResult!
   refresh(input: RefreshInput): AuthResult!
+  signup(input: SignupInput!): UserProfile!
 }
 
-type NonceResult {
-  nonce: String!
+enum ErrorType {
+  BAD_REQUEST
+  INTERNAL_SERVER_ERROR
+  UNAUTHENTICATED
+}
+
+type ErrorExtensions {
+  code: String!
+  type: ErrorType!
+}
+
+extend type Error {
+  extensions: ErrorExtensions
 }
 
 input NonceInput {
   address: String!
 }
 
-type AuthResult {
-  sessionToken: String!
-  refreshToken: String!
+type NonceResult {
+  nonce: String!
 }
 
 input LoginInput {
@@ -30,4 +41,37 @@ input LoginInput {
 
 input RefreshInput {
   refreshToken: String!
+}
+
+type AuthResult {
+  sessionToken: String!
+  refreshToken: String!
+}
+
+input SignupInput {
+  firstname: String!
+  lastname: String!
+  dateOfBirth: String!
+  primaryEmail: String!
+  country: String!
+  postalCode: String
+  city: String
+  website: String
+}
+
+type UserProfile {
+  firstname: String!
+  lastname: String!
+  dateOfBirth: String!
+  primaryEmail: String!
+  location: Location
+  website: String
+  personalGoal: String
+  about: String
+}
+
+type Location {
+  country: String!
+  postalCode: String
+  city: String
 }

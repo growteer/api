@@ -2,9 +2,30 @@
 
 package model
 
+import (
+	"fmt"
+	"io"
+	"strconv"
+)
+
 type AuthResult struct {
 	SessionToken string `json:"sessionToken"`
 	RefreshToken string `json:"refreshToken"`
+}
+
+type Error struct {
+	Extensions *ErrorExtensions `json:"extensions,omitempty"`
+}
+
+type ErrorExtensions struct {
+	Code string    `json:"code"`
+	Type ErrorType `json:"type"`
+}
+
+type Location struct {
+	Country    string  `json:"country"`
+	PostalCode *string `json:"postalCode,omitempty"`
+	City       *string `json:"city,omitempty"`
 }
 
 type LoginInput struct {
@@ -29,4 +50,69 @@ type Query struct {
 
 type RefreshInput struct {
 	RefreshToken string `json:"refreshToken"`
+}
+
+type SignupInput struct {
+	Firstname    string  `json:"firstname"`
+	Lastname     string  `json:"lastname"`
+	DateOfBirth  string  `json:"dateOfBirth"`
+	PrimaryEmail string  `json:"primaryEmail"`
+	Country      string  `json:"country"`
+	PostalCode   *string `json:"postalCode,omitempty"`
+	City         *string `json:"city,omitempty"`
+	Website      *string `json:"website,omitempty"`
+}
+
+type UserProfile struct {
+	Firstname    string    `json:"firstname"`
+	Lastname     string    `json:"lastname"`
+	DateOfBirth  string    `json:"dateOfBirth"`
+	PrimaryEmail string    `json:"primaryEmail"`
+	Location     *Location `json:"location,omitempty"`
+	Website      *string   `json:"website,omitempty"`
+	PersonalGoal *string   `json:"personalGoal,omitempty"`
+	About        *string   `json:"about,omitempty"`
+}
+
+type ErrorType string
+
+const (
+	ErrorTypeBadRequest          ErrorType = "BAD_REQUEST"
+	ErrorTypeInternalServerError ErrorType = "INTERNAL_SERVER_ERROR"
+	ErrorTypeUnauthenticated     ErrorType = "UNAUTHENTICATED"
+)
+
+var AllErrorType = []ErrorType{
+	ErrorTypeBadRequest,
+	ErrorTypeInternalServerError,
+	ErrorTypeUnauthenticated,
+}
+
+func (e ErrorType) IsValid() bool {
+	switch e {
+	case ErrorTypeBadRequest, ErrorTypeInternalServerError, ErrorTypeUnauthenticated:
+		return true
+	}
+	return false
+}
+
+func (e ErrorType) String() string {
+	return string(e)
+}
+
+func (e *ErrorType) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = ErrorType(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid ErrorType", str)
+	}
+	return nil
+}
+
+func (e ErrorType) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
 }

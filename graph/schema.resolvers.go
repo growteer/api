@@ -7,17 +7,25 @@ package graph
 import (
 	"context"
 	"fmt"
+	"time"
 
+	"github.com/99designs/gqlgen/graphql"
 	"github.com/growteer/api/graph/model"
+	"github.com/growteer/api/infrastructure/session"
+	"github.com/growteer/api/internal/profiles"
+	"github.com/growteer/api/pkg/gqlutil"
+	"github.com/growteer/api/pkg/web3util"
 )
 
 // GenerateNonce is the resolver for the generateNonce field.
 func (r *mutationResolver) GenerateNonce(ctx context.Context, input model.NonceInput) (*model.NonceResult, error) {
-	if input.Address == "" {
-		return nil, fmt.Errorf("bad request")
+	if err := web3util.VerifySolanaPublicKey(input.Address); err != nil {
+		return nil, gqlutil.BadInputError(ctx, "invalid solana address", gqlutil.ErrCodeInvalidCredentials, err)
 	}
 
-	nonce, err := r.authnService.GenerateNonce(ctx, input.Address)
+	did := web3util.NewDID(web3util.DIDMethodPKH, web3util.NamespaceSolana, input.Address)
+
+	nonce, err := r.authnService.GenerateNonce(ctx, did)
 	if err != nil {
 		return nil, err
 	}
@@ -29,9 +37,15 @@ func (r *mutationResolver) GenerateNonce(ctx context.Context, input model.NonceI
 
 // Login is the resolver for the login field.
 func (r *mutationResolver) Login(ctx context.Context, input model.LoginInput) (*model.AuthResult, error) {
-	sessionToken, refreshToken, err := r.authnService.Login(ctx, input.Address, input.Message, input.Signature)
+	if err := web3util.VerifySolanaPublicKey(input.Address); err != nil {
+		return nil, gqlutil.BadInputError(ctx, "invalid solana address", gqlutil.ErrCodeInvalidCredentials, err)
+	}
+
+	did := web3util.NewDID(web3util.DIDMethodPKH, web3util.NamespaceSolana, input.Address)
+
+	sessionToken, refreshToken, err := r.authnService.Login(ctx, did, input.Message, input.Signature)
 	if err != nil {
-		return nil, err
+		graphql.AddError(ctx, err)
 	}
 
 	return &model.AuthResult{
@@ -51,6 +65,60 @@ func (r *mutationResolver) Refresh(ctx context.Context, input *model.RefreshInpu
 		SessionToken: sessionToken,
 		RefreshToken: refreshToken,
 	}, nil
+}
+
+// Signup is the resolver for the signup field.
+func (r *mutationResolver) Signup(ctx context.Context, input model.SignupInput) (*model.UserProfile, error) {
+	did, err := session.GetAuthenticatedDID(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	dateOfBirth, err := time.Parse(time.DateOnly, input.DateOfBirth)
+	if err != nil {
+		return nil, gqlutil.BadInputError(ctx, "invalidly formatted date of birth", gqlutil.ErrCodeInvalidDateTimeFormat, err)
+	}
+
+	location := profiles.Location{
+		Country: input.Country,
+	}
+	if input.PostalCode != nil {
+		location.PostalCode = *input.PostalCode
+	}
+	if input.City != nil {
+		location.City = *input.City
+	}
+
+	newProfile := profiles.Profile{
+		DID:          did.String(),
+		FirstName:    input.Firstname,
+		LastName:     input.Lastname,
+		DateOfBirth:  dateOfBirth,
+		PrimaryEmail: input.PrimaryEmail,
+		Location: location,
+	}
+
+	if input.Website != nil {
+		newProfile.Website = *input.Website
+	}
+
+	savedProfile, err := r.profileService.CreateProfile(ctx, newProfile)
+	if err != nil {
+		return nil, gqlutil.InternalError(ctx, err.Error(), err)
+	}
+
+	gqlProfileModel := &model.UserProfile{
+		Firstname:    savedProfile.FirstName,
+		Lastname:     savedProfile.LastName,
+		PrimaryEmail: savedProfile.PrimaryEmail,
+		Location: &model.Location{
+			Country:    savedProfile.Location.Country,
+			PostalCode: &savedProfile.Location.PostalCode,
+			City:       &savedProfile.Location.City,
+		},
+	}
+
+	return gqlProfileModel, nil
 }
 
 // Nonce is the resolver for the nonce field.

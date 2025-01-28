@@ -3,30 +3,37 @@ package authn
 import (
 	"context"
 	"fmt"
+	"log/slog"
 
-	"github.com/growteer/api/infrastructure/solana"
+	"github.com/growteer/api/pkg/gqlutil"
+	"github.com/growteer/api/pkg/web3util"
 )
 
 func (s *Service) RefreshSession(ctx context.Context, refreshToken string) (newSessionToken string, newRefreshToken string, err error) {
 	claims, err := s.tokenProvider.ParseRefreshToken(refreshToken)
 	if err != nil {
-		return "", "", fmt.Errorf("could not parse refresh token: %w", err)
+		return "", "", gqlutil.BadInputError(ctx, "could not parse refresh token", gqlutil.ErrCodeInvalidCredentials, err)
 	}
 
-	address := claims.Subject
-	if err := solana.VerifyPublicKey(address); err != nil {
-		return "", "", fmt.Errorf("invalid solana address parsed from the refresh token: %s", address)
-	}
-
-	savedToken, err := s.repo.GetRefreshTokenByAddress(ctx, address)
+	did, err := web3util.DIDFromString(claims.Subject)
 	if err != nil {
-		return "", "", fmt.Errorf("could not find refresh token for user: %w", err)
+		slog.Error(err.Error())
+		return "", "", gqlutil.InternalError(ctx, "could not parse did from refresh token", err)
+	}
+
+	if err := web3util.VerifySolanaPublicKey(did.Address); err != nil {
+		return "", "", gqlutil.BadInputError(ctx, "invalid solana address in did", gqlutil.ErrCodeInvalidCredentials, err)
+	}
+
+	savedToken, err := s.authRepo.GetRefreshTokenByDID(ctx, did)
+	if err != nil {
+		return "", "", gqlutil.BadInputError(ctx, "invalid refresh token", gqlutil.ErrCodeInvalidCredentials, err)
 	}
 
 	if savedToken != refreshToken {
-		return "", "", fmt.Errorf("refresh token doesn't match")
+		return "", "", gqlutil.BadInputError(ctx, "invalid refresh token", gqlutil.ErrCodeInvalidCredentials, fmt.Errorf("refresh token does not match the one in the database"))
 	}
 
-	return s.createNewTokens(ctx, address)
+	return s.createNewTokens(ctx, did)
 }
 

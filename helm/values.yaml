@@ -1,0 +1,45 @@
+replicaCount: 1
+
+image:
+  repository: ""
+  pullPolicy: Always
+  tag: ""
+
+http:
+  port: 8080
+
+env:
+  allowedOrigins: "http://localhost:5173"
+  db:
+    host: mongodb.infra.svc.cluster.local
+    port: 27017
+    user: root
+    password: password
+    name: api_service
+    ssl: false
+  jwtSecret: baconkilbasa
+  sessionTTLMinutes: 60
+
+serviceAccount:
+  create: true
+
+service:
+  type: ClusterIP
+  port: 80
+
+ingress:
+  enabled: true
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/cors-allow-credentials: "true"
+    nginx.ingress.kubernetes.io/cors-allow-headers: Keep-Alive, User-Agent, Cache-Control, Accept, Content-Type, Authorization, Strict-Transport-Security, Cookie
+    nginx.ingress.kubernetes.io/cors-allow-methods: GET, POST, OPTIONS
+    nginx.ingress.kubernetes.io/cors-allow-origin: "http://localhost:5173, http://localhost:5173/"
+    nginx.ingress.kubernetes.io/cors-expose-headers: Content-Type, Content-Length, Set-Cookie, Authorization
+    nginx.ingress.kubernetes.io/enable-cors: "true"
+
+  hosts:
+    - host: gt.localhost
+      paths:
+        - path: /query
+          pathType: Prefix

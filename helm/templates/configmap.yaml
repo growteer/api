@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{include "api.fullname" .}}
+  annotations:
+    "helm.sh/hook": pre-install,pre-upgrade
+    "helm.sh/hook-weight": "005"
+    "helm.sh/hook-delete-policy": before-hook-creation
+data:
+  ALLOWED_ORIGINS: "{{ .Values.env.allowedOrigins }}"
+  HTTP_PORT: "{{ .Values.http.port }}"
+  MONGO_HOST: "{{ .Values.env.db.host }}"
+  MONGO_PORT: "{{ .Values.env.db.port }}"
+  MONGO_USER: "{{ .Values.env.db.user }}"
+  MONGO_PASSWORD: "{{ .Values.env.db.password }}"
+  MONGO_DB_NAME: "{{ .Values.env.db.name }}"
+  MONGO_SSL: "{{ .Values.env.db.ssl }}"
+  JWT_SECRET: "{{ .Values.env.jwtSecret }}"
+  SESSION_TTL_MINUTES: "{{ .Values.env.sessionTTLMinutes }}"

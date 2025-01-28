@@ -37,6 +37,7 @@ type MongoEnv struct {
 }
 
 type ServerEnv struct {
+	AllowedOrigins []string `envconfig:"ALLOWED_ORIGINS"`
 	HTTPPort int `envconfig:"HTTP_PORT,default=8080"`
 }
 

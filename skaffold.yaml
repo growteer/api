@@ -1,0 +1,34 @@
+apiVersion: skaffold/v4beta11
+kind: Config
+metadata:
+  name: api
+
+build:
+  artifacts:
+    - image: api
+      custom:
+        buildCommand: task build && docker build -t $IMAGE -f Dockerfile .
+        dependencies:
+          paths:
+            - cmd
+            - graph
+            - helm
+            - infrastructure
+            - internal
+            - pkg
+  local:
+    useDockerCLI: false
+    useBuildkit: false
+
+deploy:
+  helm:
+    releases:
+      - name: api
+        chartPath: helm
+        namespace: growteer
+        valuesFiles:
+          - helm/values.yaml
+        setValueTemplates:
+          image.repository: "{{.IMAGE_REPO_api}}"
+          image.tag: "{{.IMAGE_TAG_api}}@{{.IMAGE_DIGEST_api}}"
+          image.pullPolicy: IfNotPresent

@@ -5,11 +5,12 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/growteer/api/pkg/web3util"
 )
 
-func (p *Provider) NewRefreshToken(address string) (string, error) {
+func (p *Provider) NewRefreshToken(did *web3util.DID) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.RegisteredClaims{
-		Subject: address,
+		Subject: did.String(),
 		ExpiresAt: jwt.NewNumericDate(time.Now().Add(p.refreshTTL)),
 	})
 

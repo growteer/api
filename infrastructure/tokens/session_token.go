@@ -5,11 +5,12 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/growteer/api/pkg/web3util"
 )
 
-func (p *Provider) NewSessionToken(address string) (string, error) {
+func (p *Provider) NewSessionToken(did *web3util.DID) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.RegisteredClaims{
-		Subject: address,
+		Subject: did.String(),
 		ExpiresAt: jwt.NewNumericDate(time.Now().Add(p.sessionTTL)),
 	})
 
@@ -19,4 +20,21 @@ func (p *Provider) NewSessionToken(address string) (string, error) {
 	}
 
 	return tokenString, nil
+}
+
+func (p *Provider) ParseSessionToken(token string) (claims *jwt.RegisteredClaims, err error) {
+	claims = &jwt.RegisteredClaims{}
+	parsedToken, err := jwt.ParseWithClaims(token, claims, func(token *jwt.Token) (interface{}, error) {
+		return p.secretKey, nil
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	if !parsedToken.Valid {
+		return nil, fmt.Errorf("invalid refresh token")
+	}
+
+	return claims, nil
 }
