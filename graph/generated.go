@@ -1668,11 +1668,14 @@ func (ec *executionContext) _UserProfile_location(ctx context.Context, field gra
 		return graphql.Null
 	}
 	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
 		return graphql.Null
 	}
 	res := resTmp.(*model.Location)
 	fc.Result = res
-	return ec.marshalOLocation2ᚖgithubᚗcomᚋgrowteerᚋapiᚋgraphᚋmodelᚐLocation(ctx, field.Selections, res)
+	return ec.marshalNLocation2ᚖgithubᚗcomᚋgrowteerᚋapiᚋgraphᚋmodelᚐLocation(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_UserProfile_location(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -4152,6 +4155,9 @@ func (ec *executionContext) _UserProfile(ctx context.Context, sel ast.SelectionS
 			}
 		case "location":
 			out.Values[i] = ec._UserProfile_location(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		case "website":
 			out.Values[i] = ec._UserProfile_website(ctx, field, obj)
 		case "personalGoal":
@@ -4546,6 +4552,16 @@ func (ec *executionContext) marshalNErrorType2githubᚗcomᚋgrowteerᚋapiᚋgr
 	return v
 }
 
+func (ec *executionContext) marshalNLocation2ᚖgithubᚗcomᚋgrowteerᚋapiᚋgraphᚋmodelᚐLocation(ctx context.Context, sel ast.SelectionSet, v *model.Location) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._Location(ctx, sel, v)
+}
+
 func (ec *executionContext) unmarshalNLoginInput2githubᚗcomᚋgrowteerᚋapiᚋgraphᚋmodelᚐLoginInput(ctx context.Context, v interface{}) (model.LoginInput, error) {
 	res, err := ec.unmarshalInputLoginInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -4888,13 +4904,6 @@ func (ec *executionContext) marshalOErrorExtensions2ᚖgithubᚗcomᚋgrowteer�
 		return graphql.Null
 	}
 	return ec._ErrorExtensions(ctx, sel, v)
-}
-
-func (ec *executionContext) marshalOLocation2ᚖgithubᚗcomᚋgrowteerᚋapiᚋgraphᚋmodelᚐLocation(ctx context.Context, sel ast.SelectionSet, v *model.Location) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	return ec._Location(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalORefreshInput2ᚖgithubᚗcomᚋgrowteerᚋapiᚋgraphᚋmodelᚐRefreshInput(ctx context.Context, v interface{}) (*model.RefreshInput, error) {
