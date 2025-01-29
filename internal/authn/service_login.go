@@ -5,6 +5,7 @@ import (
 	"crypto/rand"
 	"encoding/hex"
 	"fmt"
+	"log/slog"
 	"strings"
 
 	"github.com/growteer/api/infrastructure/solana"
@@ -22,6 +23,7 @@ func (s *Service) Login(ctx context.Context, did *web3util.DID, message string, 
 
 	_, err = s.userRepo.GetByDID(ctx, did)
 	if err != nil {
+		slog.Error("failed getting profile by did", slog.Attr{Key: "did", Value: slog.StringValue(did.String())}, slog.Attr{Key: "error", Value: slog.StringValue(err.Error())})
 		_ = gqlutil.BadInputError(ctx, "user not signed up", gqlutil.ErrCodeUserNotSignedUp, err)
 	}
 
@@ -42,7 +44,7 @@ func (s *Service) verifySignature(ctx context.Context, did *web3util.DID, messag
 		return err
 	}
 
-	return  nil
+	return nil
 }
 
 func (s *Service) GenerateNonce(ctx context.Context, did *web3util.DID) (string, error) {
@@ -50,7 +52,7 @@ func (s *Service) GenerateNonce(ctx context.Context, did *web3util.DID) (string,
 
 	_, err := rand.Read(bytes)
 	if err != nil {
-			return "", gqlutil.InternalError(ctx, "could not generate nonce", err)
+		return "", gqlutil.InternalError(ctx, "could not generate nonce", err)
 	}
 
 	encoded := hex.EncodeToString(bytes)
