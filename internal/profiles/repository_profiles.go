@@ -9,22 +9,22 @@ import (
 )
 
 type Profile struct {
-	DID string `bson:"_id"`
-	FirstName string `bson:"firstName"`
-	LastName string `bson:"lastName"`
-	DateOfBirth time.Time `bson:"dateOfBirth"`
-	PrimaryEmail string `bson:"primaryEmail"`
-	Location Location `bson:"location,omitempty"`
-	Website string `bson:"website,omitempty"`
-	PersonalGoal string `bson:"personalGoal,omitempty"`
-	About string `bson:"about,omitempty"`
-	CreatedAt time.Time `bson:"createdAt"`
+	DID          string    `bson:"_id"`
+	FirstName    string    `bson:"firstName"`
+	LastName     string    `bson:"lastName"`
+	DateOfBirth  time.Time `bson:"dateOfBirth"`
+	PrimaryEmail string    `bson:"primaryEmail"`
+	Location     Location  `bson:"location,omitempty"`
+	Website      string    `bson:"website,omitempty"`
+	PersonalGoal string    `bson:"personalGoal,omitempty"`
+	About        string    `bson:"about,omitempty"`
+	CreatedAt    time.Time `bson:"createdAt"`
 }
 
 type Location struct {
-	Country string `bson:"country"`
+	Country    string `bson:"country"`
 	PostalCode string `bson:"postalCode"`
-	City string `bson:"city"`
+	City       string `bson:"city"`
 }
 
 func (r *repository) Create(ctx context.Context, profile Profile) (*Profile, error) {
@@ -38,11 +38,11 @@ func (r *repository) Create(ctx context.Context, profile Profile) (*Profile, err
 }
 
 func (r *repository) GetByDID(ctx context.Context, did *web3util.DID) (*Profile, error) {
-	var result *Profile
-	err := r.profiles.FindOne(ctx, bson.M{"_id": did.String()}).Decode(result)
+	var result Profile
+	err := r.profiles.FindOne(ctx, bson.M{"_id": did.String()}).Decode(&result)
 	if err != nil {
 		return nil, err
 	}
 
-	return result, nil
+	return &result, nil
 }
