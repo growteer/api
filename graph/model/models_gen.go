@@ -45,6 +45,19 @@ type NonceResult struct {
 	Nonce string `json:"nonce"`
 }
 
+type ProfileUpdate struct {
+	Firstname    string  `json:"firstname"`
+	Lastname     string  `json:"lastname"`
+	DateOfBirth  string  `json:"dateOfBirth"`
+	PrimaryEmail string  `json:"primaryEmail"`
+	Country      string  `json:"country"`
+	PostalCode   *string `json:"postalCode,omitempty"`
+	City         *string `json:"city,omitempty"`
+	Website      *string `json:"website,omitempty"`
+	PersonalGoal *string `json:"personalGoal,omitempty"`
+	About        *string `json:"about,omitempty"`
+}
+
 type Query struct {
 }
 

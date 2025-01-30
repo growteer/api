@@ -11,6 +11,7 @@ import (
 type Repository interface {
 	Create(ctx context.Context, profile Profile) (*Profile, error)
 	GetByDID(ctx context.Context, did *web3util.DID) (*Profile, error)
+	Update(ctx context.Context, profile Profile) (*Profile, error)
 }
 
 type Service struct {
@@ -39,4 +40,12 @@ func (s *Service) GetProfile(ctx context.Context, did *web3util.DID) (*Profile, 
 	}
 
 	return s.repo.GetByDID(ctx, did)
+}
+
+func (s *Service) UpdateProfile(ctx context.Context, did *web3util.DID, profile *Profile) (*Profile, error) {
+	if !s.authz.MayUpdate(ctx, did) {
+		return nil, gqlutil.NotFoundError(ctx, nil)
+	}
+
+	return s.repo.Update(ctx, *profile)
 }

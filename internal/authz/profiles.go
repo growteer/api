@@ -10,18 +10,42 @@ import (
 
 type Profiles struct{}
 
-func (p *Profiles) MayRead(ctx context.Context, requestedDID *web3util.DID) bool {
+func (p *Profiles) MayRead(ctx context.Context, profileToRead *web3util.DID) bool {
 	did, err := session.DIDFromContext(ctx)
 	if err != nil {
 		slog.Error(err.Error())
 		return false
 	}
 
-	if requestedDID.String() == did.String() {
+	if profileToRead.String() == did.String() {
 		slog.Warn("user does not have permission to read profile",
 			slog.Attr{
 				Key:   "profile",
-				Value: slog.StringValue(requestedDID.String()),
+				Value: slog.StringValue(profileToRead.String()),
+			},
+			slog.Attr{
+				Key:   "user",
+				Value: slog.StringValue(did.String()),
+			},
+		)
+		return true
+	}
+
+	return false
+}
+
+func (p *Profiles) MayUpdate(ctx context.Context, profileToUpdate *web3util.DID) bool {
+	did, err := session.DIDFromContext(ctx)
+	if err != nil {
+		slog.Error(err.Error())
+		return false
+	}
+
+	if profileToUpdate.String() == did.String() {
+		slog.Warn("user does not have permission to update profile",
+			slog.Attr{
+				Key:   "profile",
+				Value: slog.StringValue(profileToUpdate.String()),
 			},
 			slog.Attr{
 				Key:   "user",
