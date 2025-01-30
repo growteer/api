@@ -7,6 +7,7 @@ type Mutation {
   login(input: LoginInput!): AuthResult!
   refresh(input: RefreshInput): AuthResult!
   signup(input: SignupInput!): UserProfile!
+  updateProfile(input: ProfileUpdate): UserProfile!
 }
 
 enum ErrorType {
@@ -56,6 +57,19 @@ input SignupInput {
   postalCode: String
   city: String
   website: String
+}
+
+input ProfileUpdate {
+  firstname: String!
+  lastname: String!
+  dateOfBirth: String!
+  primaryEmail: String!
+  country: String!
+  postalCode: String
+  city: String
+  website: String
+  personalGoal: String
+  about: String
 }
 
 type UserProfile {

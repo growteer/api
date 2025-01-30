@@ -2,8 +2,11 @@ package profiles
 
 import (
 	"context"
+	"fmt"
+	"log/slog"
 	"time"
 
+	"github.com/growteer/api/pkg/gqlutil"
 	"github.com/growteer/api/pkg/web3util"
 	"go.mongodb.org/mongo-driver/bson"
 )
@@ -19,6 +22,7 @@ type Profile struct {
 	PersonalGoal string    `bson:"personalGoal,omitempty"`
 	About        string    `bson:"about,omitempty"`
 	CreatedAt    time.Time `bson:"createdAt"`
+	UpdatedAt    time.Time `bson:"updatedAt"`
 }
 
 type Location struct {
@@ -29,6 +33,8 @@ type Location struct {
 
 func (r *repository) Create(ctx context.Context, profile Profile) (*Profile, error) {
 	profile.CreatedAt = time.Now()
+	profile.UpdatedAt = profile.CreatedAt
+
 	_, err := r.profiles.InsertOne(ctx, profile)
 	if err != nil {
 		return nil, err
@@ -45,4 +51,24 @@ func (r *repository) GetByDID(ctx context.Context, did *web3util.DID) (*Profile,
 	}
 
 	return &result, nil
+}
+
+func (r *repository) Update(ctx context.Context, profile Profile) (*Profile, error) {
+	profile.UpdatedAt = time.Now()
+	result, err := r.profiles.ReplaceOne(ctx, bson.M{"_id": profile.DID}, profile)
+	if err != nil {
+		return nil, err
+	}
+
+	if result.MatchedCount == 0 {
+		err := fmt.Errorf("no profile found for updating")
+		slog.Warn(err.Error(), slog.Attr{
+			Key:   "did",
+			Value: slog.StringValue(profile.DID),
+		})
+
+		return nil, gqlutil.NotFoundError(ctx, err)
+	}
+
+	return &profile, nil
 }

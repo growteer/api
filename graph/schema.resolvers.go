@@ -74,6 +74,28 @@ func (r *mutationResolver) Signup(ctx context.Context, input model.SignupInput) 
 		return nil, err
 	}
 
+	newProfile, err := profileFromSignupInput(ctx, did, &input)
+
+	savedProfile, err := r.profileService.CreateProfile(ctx, *newProfile)
+	if err != nil {
+		return nil, gqlutil.InternalError(ctx, err.Error(), err)
+	}
+
+	gqlProfileModel := &model.UserProfile{
+		Firstname:    savedProfile.FirstName,
+		Lastname:     savedProfile.LastName,
+		PrimaryEmail: savedProfile.PrimaryEmail,
+		Location: &model.Location{
+			Country:    savedProfile.Location.Country,
+			PostalCode: &savedProfile.Location.PostalCode,
+			City:       &savedProfile.Location.City,
+		},
+	}
+
+	return gqlProfileModel, nil
+}
+
+func profileFromSignupInput(ctx context.Context, did *web3util.DID, input *model.SignupInput) (*profiles.Profile, error) {
 	dateOfBirth, err := time.Parse(time.DateOnly, input.DateOfBirth)
 	if err != nil {
 		return nil, gqlutil.BadInputError(ctx, "invalidly formatted date of birth", gqlutil.ErrCodeInvalidDateTimeFormat, err)
@@ -102,23 +124,77 @@ func (r *mutationResolver) Signup(ctx context.Context, input model.SignupInput) 
 		newProfile.Website = *input.Website
 	}
 
-	savedProfile, err := r.profileService.CreateProfile(ctx, newProfile)
+	return &newProfile, nil
+}
+
+func profileFromUpdateInput(ctx context.Context, did *web3util.DID, input *model.ProfileUpdate) (*profiles.Profile, error) {
+	dateOfBirth, err := time.Parse(time.DateOnly, input.DateOfBirth)
 	if err != nil {
-		return nil, gqlutil.InternalError(ctx, err.Error(), err)
+		return nil, gqlutil.BadInputError(ctx, "invalidly formatted date of birth", gqlutil.ErrCodeInvalidDateTimeFormat, err)
 	}
 
-	gqlProfileModel := &model.UserProfile{
-		Firstname:    savedProfile.FirstName,
-		Lastname:     savedProfile.LastName,
-		PrimaryEmail: savedProfile.PrimaryEmail,
+	location := profiles.Location{
+		Country: input.Country,
+	}
+	if input.PostalCode != nil {
+		location.PostalCode = *input.PostalCode
+	}
+	if input.City != nil {
+		location.City = *input.City
+	}
+
+	newProfile := profiles.Profile{
+		DID:          did.String(),
+		FirstName:    input.Firstname,
+		LastName:     input.Lastname,
+		DateOfBirth:  dateOfBirth,
+		PrimaryEmail: input.PrimaryEmail,
+		Location:     location,
+	}
+
+	if input.Website != nil {
+		newProfile.Website = *input.Website
+	}
+	if input.PersonalGoal != nil {
+		newProfile.PersonalGoal = *input.PersonalGoal
+	}
+	if input.About != nil {
+		newProfile.About = *input.About
+	}
+
+	return &newProfile, nil
+}
+
+// UpdateProfile is the resolver for the updateProfile field.
+func (r *mutationResolver) UpdateProfile(ctx context.Context, input *model.ProfileUpdate) (*model.UserProfile, error) {
+	did, err := session.GetAuthenticatedDID(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	profileUpdate, err := profileFromUpdateInput(ctx, did, input)
+	if err != nil {
+		return nil, err
+	}
+
+	updatedProfile, err := r.profileService.UpdateProfile(ctx, did, profileUpdate)
+	if err != nil {
+		return nil, err
+	}
+
+	return &model.UserProfile{
+		Firstname:    updatedProfile.FirstName,
+		Lastname:     updatedProfile.LastName,
+		PrimaryEmail: updatedProfile.PrimaryEmail,
 		Location: &model.Location{
-			Country:    savedProfile.Location.Country,
-			PostalCode: &savedProfile.Location.PostalCode,
-			City:       &savedProfile.Location.City,
+			Country:    updatedProfile.Location.Country,
+			PostalCode: &updatedProfile.Location.PostalCode,
+			City:       &updatedProfile.Location.City,
 		},
-	}
-
-	return gqlProfileModel, nil
+		Website:      &updatedProfile.Website,
+		PersonalGoal: &updatedProfile.PersonalGoal,
+		About:        &updatedProfile.About,
+	}, nil
 }
 
 // UserProfile is the resolver for the userProfile field.
