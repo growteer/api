@@ -8,7 +8,7 @@ import (
 	"log/slog"
 	"strings"
 
-	"github.com/growteer/api/infrastructure/solana"
+	"github.com/growteer/api/internal/infrastructure/solana"
 	"github.com/growteer/api/pkg/gqlutil"
 	"github.com/growteer/api/pkg/web3util"
 )

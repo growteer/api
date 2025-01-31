@@ -12,10 +12,10 @@ import (
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/go-chi/chi/v5"
 	"github.com/growteer/api/graph"
-	"github.com/growteer/api/infrastructure/environment"
-	"github.com/growteer/api/infrastructure/mongodb"
-	"github.com/growteer/api/infrastructure/session"
-	"github.com/growteer/api/infrastructure/tokens"
+	"github.com/growteer/api/internal/infrastructure/environment"
+	"github.com/growteer/api/internal/infrastructure/mongodb"
+	"github.com/growteer/api/internal/infrastructure/session"
+	"github.com/growteer/api/internal/infrastructure/tokens"
 	"github.com/growteer/api/pkg/gqlutil"
 	"github.com/rs/cors"
 	"github.com/vektah/gqlparser/v2/ast"
@@ -31,7 +31,6 @@ func main() {
 		AllowedMethods:   []string{"GET", "POST", "OPTIONS"},
 		AllowCredentials: true,
 	}).Handler)
-
 
 	db := mongodb.NewDB(env.Mongo)
 	tokenProvider := tokens.NewProvider(env.Token.JWTSecret, env.Token.SessionTTLMinutes, env.Token.RefreshTTLMinutes)

@@ -3,7 +3,7 @@ package authz
 import (
 	"log/slog"
 
-	"github.com/growteer/api/infrastructure/session"
+	"github.com/growteer/api/internal/infrastructure/session"
 	"github.com/growteer/api/pkg/web3util"
 	"golang.org/x/net/context"
 )
