@@ -11,7 +11,7 @@ import (
 	"github.com/99designs/gqlgen/graphql/handler/transport"
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/go-chi/chi/v5"
-	"github.com/growteer/api/graph"
+	"github.com/growteer/api/internal/api/graphql"
 	"github.com/growteer/api/internal/infrastructure/environment"
 	"github.com/growteer/api/internal/infrastructure/mongodb"
 	"github.com/growteer/api/internal/infrastructure/session"
@@ -35,8 +35,8 @@ func main() {
 	db := mongodb.NewDB(env.Mongo)
 	tokenProvider := tokens.NewProvider(env.Token.JWTSecret, env.Token.SessionTTLMinutes, env.Token.RefreshTTLMinutes)
 
-	resolver := graph.NewResolver(db, tokenProvider)
-	server := handler.New(graph.NewExecutableSchema(graph.Config{Resolvers: resolver}))
+	resolver := graphql.NewResolver(db, tokenProvider)
+	server := handler.New(graphql.NewExecutableSchema(graphql.Config{Resolvers: resolver}))
 	server.SetErrorPresenter(gqlutil.PresentError)
 	server.SetRecoverFunc(gqlutil.Recover)
 

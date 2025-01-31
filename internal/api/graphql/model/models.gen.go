@@ -28,7 +28,7 @@ type Location struct {
 	City       *string `json:"city,omitempty"`
 }
 
-type LoginInput struct {
+type LoginDetails struct {
 	Address   string `json:"address"`
 	Message   string `json:"message"`
 	Signature string `json:"signature"`
@@ -37,15 +37,40 @@ type LoginInput struct {
 type Mutation struct {
 }
 
-type NonceInput struct {
-	Address string `json:"address"`
+type NewProfile struct {
+	Firstname    string  `json:"firstname"`
+	Lastname     string  `json:"lastname"`
+	DateOfBirth  string  `json:"dateOfBirth"`
+	PrimaryEmail string  `json:"primaryEmail"`
+	Country      string  `json:"country"`
+	PostalCode   *string `json:"postalCode,omitempty"`
+	City         *string `json:"city,omitempty"`
+	Website      *string `json:"website,omitempty"`
 }
 
 type NonceResult struct {
 	Nonce string `json:"nonce"`
 }
 
-type ProfileUpdate struct {
+type Profile struct {
+	Firstname    string    `json:"firstname"`
+	Lastname     string    `json:"lastname"`
+	DateOfBirth  string    `json:"dateOfBirth"`
+	PrimaryEmail string    `json:"primaryEmail"`
+	Location     *Location `json:"location"`
+	Website      *string   `json:"website,omitempty"`
+	PersonalGoal *string   `json:"personalGoal,omitempty"`
+	About        *string   `json:"about,omitempty"`
+}
+
+type Query struct {
+}
+
+type RefreshInput struct {
+	RefreshToken string `json:"refreshToken"`
+}
+
+type UpdatedProfile struct {
 	Firstname    string  `json:"firstname"`
 	Lastname     string  `json:"lastname"`
 	DateOfBirth  string  `json:"dateOfBirth"`
@@ -56,35 +81,6 @@ type ProfileUpdate struct {
 	Website      *string `json:"website,omitempty"`
 	PersonalGoal *string `json:"personalGoal,omitempty"`
 	About        *string `json:"about,omitempty"`
-}
-
-type Query struct {
-}
-
-type RefreshInput struct {
-	RefreshToken string `json:"refreshToken"`
-}
-
-type SignupInput struct {
-	Firstname    string  `json:"firstname"`
-	Lastname     string  `json:"lastname"`
-	DateOfBirth  string  `json:"dateOfBirth"`
-	PrimaryEmail string  `json:"primaryEmail"`
-	Country      string  `json:"country"`
-	PostalCode   *string `json:"postalCode,omitempty"`
-	City         *string `json:"city,omitempty"`
-	Website      *string `json:"website,omitempty"`
-}
-
-type UserProfile struct {
-	Firstname    string    `json:"firstname"`
-	Lastname     string    `json:"lastname"`
-	DateOfBirth  string    `json:"dateOfBirth"`
-	PrimaryEmail string    `json:"primaryEmail"`
-	Location     *Location `json:"location"`
-	Website      *string   `json:"website,omitempty"`
-	PersonalGoal *string   `json:"personalGoal,omitempty"`
-	About        *string   `json:"about,omitempty"`
 }
 
 type ErrorType string
