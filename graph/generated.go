@@ -72,7 +72,7 @@ type ComplexityRoot struct {
 		Login         func(childComplexity int, input model.LoginInput) int
 		Refresh       func(childComplexity int, input *model.RefreshInput) int
 		Signup        func(childComplexity int, input model.SignupInput) int
-		UpdateProfile func(childComplexity int, input *model.ProfileUpdate) int
+		UpdateProfile func(childComplexity int, input model.ProfileUpdate) int
 	}
 
 	NonceResult struct {
@@ -100,7 +100,7 @@ type MutationResolver interface {
 	Login(ctx context.Context, input model.LoginInput) (*model.AuthResult, error)
 	Refresh(ctx context.Context, input *model.RefreshInput) (*model.AuthResult, error)
 	Signup(ctx context.Context, input model.SignupInput) (*model.UserProfile, error)
-	UpdateProfile(ctx context.Context, input *model.ProfileUpdate) (*model.UserProfile, error)
+	UpdateProfile(ctx context.Context, input model.ProfileUpdate) (*model.UserProfile, error)
 }
 type QueryResolver interface {
 	UserProfile(ctx context.Context, userDid string) (*model.UserProfile, error)
@@ -239,7 +239,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.UpdateProfile(childComplexity, args["input"].(*model.ProfileUpdate)), true
+		return e.complexity.Mutation.UpdateProfile(childComplexity, args["input"].(model.ProfileUpdate)), true
 
 	case "NonceResult.nonce":
 		if e.complexity.NonceResult.Nonce == nil {
@@ -550,13 +550,13 @@ func (ec *executionContext) field_Mutation_updateProfile_args(ctx context.Contex
 func (ec *executionContext) field_Mutation_updateProfile_argsInput(
 	ctx context.Context,
 	rawArgs map[string]interface{},
-) (*model.ProfileUpdate, error) {
+) (model.ProfileUpdate, error) {
 	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
 	if tmp, ok := rawArgs["input"]; ok {
-		return ec.unmarshalOProfileUpdate2ᚖgithubᚗcomᚋgrowteerᚋapiᚋgraphᚋmodelᚐProfileUpdate(ctx, tmp)
+		return ec.unmarshalNProfileUpdate2githubᚗcomᚋgrowteerᚋapiᚋgraphᚋmodelᚐProfileUpdate(ctx, tmp)
 	}
 
-	var zeroVal *model.ProfileUpdate
+	var zeroVal model.ProfileUpdate
 	return zeroVal, nil
 }
 
@@ -1277,7 +1277,7 @@ func (ec *executionContext) _Mutation_updateProfile(ctx context.Context, field g
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().UpdateProfile(rctx, fc.Args["input"].(*model.ProfileUpdate))
+		return ec.resolvers.Mutation().UpdateProfile(rctx, fc.Args["input"].(model.ProfileUpdate))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -4794,6 +4794,11 @@ func (ec *executionContext) marshalNNonceResult2ᚖgithubᚗcomᚋgrowteerᚋapi
 	return ec._NonceResult(ctx, sel, v)
 }
 
+func (ec *executionContext) unmarshalNProfileUpdate2githubᚗcomᚋgrowteerᚋapiᚋgraphᚋmodelᚐProfileUpdate(ctx context.Context, v interface{}) (model.ProfileUpdate, error) {
+	res, err := ec.unmarshalInputProfileUpdate(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) unmarshalNSignupInput2githubᚗcomᚋgrowteerᚋapiᚋgraphᚋmodelᚐSignupInput(ctx context.Context, v interface{}) (model.SignupInput, error) {
 	res, err := ec.unmarshalInputSignupInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -5112,14 +5117,6 @@ func (ec *executionContext) marshalOErrorExtensions2ᚖgithubᚗcomᚋgrowteer�
 		return graphql.Null
 	}
 	return ec._ErrorExtensions(ctx, sel, v)
-}
-
-func (ec *executionContext) unmarshalOProfileUpdate2ᚖgithubᚗcomᚋgrowteerᚋapiᚋgraphᚋmodelᚐProfileUpdate(ctx context.Context, v interface{}) (*model.ProfileUpdate, error) {
-	if v == nil {
-		return nil, nil
-	}
-	res, err := ec.unmarshalInputProfileUpdate(ctx, v)
-	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalORefreshInput2ᚖgithubᚗcomᚋgrowteerᚋapiᚋgraphᚋmodelᚐRefreshInput(ctx context.Context, v interface{}) (*model.RefreshInput, error) {

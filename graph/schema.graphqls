@@ -7,7 +7,7 @@ type Mutation {
   login(input: LoginInput!): AuthResult!
   refresh(input: RefreshInput): AuthResult!
   signup(input: SignupInput!): UserProfile!
-  updateProfile(input: ProfileUpdate): UserProfile!
+  updateProfile(input: ProfileUpdate!): UserProfile!
 }
 
 enum ErrorType {
