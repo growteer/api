@@ -18,18 +18,19 @@ func (p *Profiles) MayRead(ctx context.Context, profileToRead *web3util.DID) boo
 	}
 
 	if profileToRead.String() == did.String() {
-		slog.Warn("user does not have permission to read profile",
-			slog.Attr{
-				Key:   "profile",
-				Value: slog.StringValue(profileToRead.String()),
-			},
-			slog.Attr{
-				Key:   "user",
-				Value: slog.StringValue(did.String()),
-			},
-		)
 		return true
 	}
+
+	slog.Warn("user does not have permission to read profile",
+		slog.Attr{
+			Key:   "profile",
+			Value: slog.StringValue(profileToRead.String()),
+		},
+		slog.Attr{
+			Key:   "user",
+			Value: slog.StringValue(did.String()),
+		},
+	)
 
 	return false
 }
@@ -42,18 +43,19 @@ func (p *Profiles) MayUpdate(ctx context.Context, profileToUpdate *web3util.DID)
 	}
 
 	if profileToUpdate.String() == did.String() {
-		slog.Warn("user does not have permission to update profile",
-			slog.Attr{
-				Key:   "profile",
-				Value: slog.StringValue(profileToUpdate.String()),
-			},
-			slog.Attr{
-				Key:   "user",
-				Value: slog.StringValue(did.String()),
-			},
-		)
 		return true
 	}
+
+	slog.Warn("user does not have permission to update profile",
+		slog.Attr{
+			Key:   "profile",
+			Value: slog.StringValue(profileToUpdate.String()),
+		},
+		slog.Attr{
+			Key:   "user",
+			Value: slog.StringValue(did.String()),
+		},
+	)
 
 	return false
 }
