@@ -1,4 +1,4 @@
-package graph
+package graphql
 
 import (
 	"github.com/growteer/api/internal/authn"
@@ -10,8 +10,8 @@ import (
 //
 // It serves as dependency injection for your app, add any dependencies you require here.
 
-type Resolver struct{
-	authnService *authn.Service
+type Resolver struct {
+	authnService   *authn.Service
 	profileService *profiles.Service
 }
 
@@ -24,7 +24,7 @@ func NewResolver(db *mongo.Database, tokenProvider authn.TokenProvider) *Resolve
 	profileRepo := profiles.NewRepository(db)
 
 	return &Resolver{
-		authnService: authn.NewService(authnRepo, tokenProvider, profileRepo),
+		authnService:   authn.NewService(authnRepo, tokenProvider, profileRepo),
 		profileService: profiles.NewService(profileRepo),
 	}
 }

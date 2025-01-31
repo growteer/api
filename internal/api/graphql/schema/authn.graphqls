@@ -1,0 +1,30 @@
+extend type Mutation {
+  generateNonce(address: String!): NonceResult!
+  login(input: LoginDetails!): AuthResult!
+  refreshSession(input: RefreshInput!): AuthResult!
+}
+
+#########
+# Types #
+#########
+type NonceResult {
+  nonce: String!
+}
+
+type AuthResult {
+  sessionToken: String!
+  refreshToken: String!
+}
+
+##########
+# Inputs #
+##########
+input LoginDetails {
+  address: String!
+  message: String!
+  signature: String!
+}
+
+input RefreshInput {
+  refreshToken: String!
+}

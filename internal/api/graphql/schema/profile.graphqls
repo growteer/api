@@ -1,0 +1,52 @@
+extend type Mutation {
+  onboard(profile: NewProfile!): Profile!
+  updateProfile(profile: UpdatedProfile!): Profile!
+}
+
+extend type Query {
+  profile(userDID: String!): Profile!
+}
+
+type Profile {
+  firstname: String!
+  lastname: String!
+  dateOfBirth: String!
+  primaryEmail: String!
+  location: Location!
+  website: String
+  personalGoal: String
+  about: String
+}
+
+type Location {
+  country: String!
+  postalCode: String
+  city: String
+}
+
+##########
+# Inputs #
+##########
+input NewProfile {
+  firstname: String!
+  lastname: String!
+  dateOfBirth: String!
+  primaryEmail: String!
+  country: String!
+  postalCode: String
+  city: String
+  website: String
+}
+
+input UpdatedProfile {
+  firstname: String!
+  lastname: String!
+  dateOfBirth: String!
+  primaryEmail: String!
+  country: String!
+  postalCode: String
+  city: String
+  website: String
+  personalGoal: String
+  about: String
+}
