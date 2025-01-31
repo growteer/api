@@ -95,84 +95,14 @@ func (r *mutationResolver) Signup(ctx context.Context, input model.SignupInput) 
 	return gqlProfileModel, nil
 }
 
-func profileFromSignupInput(ctx context.Context, did *web3util.DID, input *model.SignupInput) (*profiles.Profile, error) {
-	dateOfBirth, err := time.Parse(time.DateOnly, input.DateOfBirth)
-	if err != nil {
-		return nil, gqlutil.BadInputError(ctx, "invalidly formatted date of birth", gqlutil.ErrCodeInvalidDateTimeFormat, err)
-	}
-
-	location := profiles.Location{
-		Country: input.Country,
-	}
-	if input.PostalCode != nil {
-		location.PostalCode = *input.PostalCode
-	}
-	if input.City != nil {
-		location.City = *input.City
-	}
-
-	newProfile := profiles.Profile{
-		DID:          did.String(),
-		FirstName:    input.Firstname,
-		LastName:     input.Lastname,
-		DateOfBirth:  dateOfBirth,
-		PrimaryEmail: input.PrimaryEmail,
-		Location:     location,
-	}
-
-	if input.Website != nil {
-		newProfile.Website = *input.Website
-	}
-
-	return &newProfile, nil
-}
-
-func profileFromUpdateInput(ctx context.Context, did *web3util.DID, input *model.ProfileUpdate) (*profiles.Profile, error) {
-	dateOfBirth, err := time.Parse(time.DateOnly, input.DateOfBirth)
-	if err != nil {
-		return nil, gqlutil.BadInputError(ctx, "invalidly formatted date of birth", gqlutil.ErrCodeInvalidDateTimeFormat, err)
-	}
-
-	location := profiles.Location{
-		Country: input.Country,
-	}
-	if input.PostalCode != nil {
-		location.PostalCode = *input.PostalCode
-	}
-	if input.City != nil {
-		location.City = *input.City
-	}
-
-	newProfile := profiles.Profile{
-		DID:          did.String(),
-		FirstName:    input.Firstname,
-		LastName:     input.Lastname,
-		DateOfBirth:  dateOfBirth,
-		PrimaryEmail: input.PrimaryEmail,
-		Location:     location,
-	}
-
-	if input.Website != nil {
-		newProfile.Website = *input.Website
-	}
-	if input.PersonalGoal != nil {
-		newProfile.PersonalGoal = *input.PersonalGoal
-	}
-	if input.About != nil {
-		newProfile.About = *input.About
-	}
-
-	return &newProfile, nil
-}
-
 // UpdateProfile is the resolver for the updateProfile field.
-func (r *mutationResolver) UpdateProfile(ctx context.Context, input *model.ProfileUpdate) (*model.UserProfile, error) {
+func (r *mutationResolver) UpdateProfile(ctx context.Context, input model.ProfileUpdate) (*model.UserProfile, error) {
 	did, err := session.GetAuthenticatedDID(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	profileUpdate, err := profileFromUpdateInput(ctx, did, input)
+	profileUpdate, err := profileFromUpdateInput(ctx, did, &input)
 	if err != nil {
 		return nil, err
 	}
@@ -245,3 +175,72 @@ func (r *Resolver) Query() QueryResolver { return &queryResolver{r} }
 
 type mutationResolver struct{ *Resolver }
 type queryResolver struct{ *Resolver }
+
+func profileFromSignupInput(ctx context.Context, did *web3util.DID, input *model.SignupInput) (*profiles.Profile, error) {
+	dateOfBirth, err := time.Parse(time.DateOnly, input.DateOfBirth)
+	if err != nil {
+		return nil, gqlutil.BadInputError(ctx, "invalidly formatted date of birth", gqlutil.ErrCodeInvalidDateTimeFormat, err)
+	}
+
+	location := profiles.Location{
+		Country: input.Country,
+	}
+	if input.PostalCode != nil {
+		location.PostalCode = *input.PostalCode
+	}
+	if input.City != nil {
+		location.City = *input.City
+	}
+
+	newProfile := profiles.Profile{
+		DID:          did.String(),
+		FirstName:    input.Firstname,
+		LastName:     input.Lastname,
+		DateOfBirth:  dateOfBirth,
+		PrimaryEmail: input.PrimaryEmail,
+		Location:     location,
+	}
+
+	if input.Website != nil {
+		newProfile.Website = *input.Website
+	}
+
+	return &newProfile, nil
+}
+func profileFromUpdateInput(ctx context.Context, did *web3util.DID, input *model.ProfileUpdate) (*profiles.Profile, error) {
+	dateOfBirth, err := time.Parse(time.DateOnly, input.DateOfBirth)
+	if err != nil {
+		return nil, gqlutil.BadInputError(ctx, "invalidly formatted date of birth", gqlutil.ErrCodeInvalidDateTimeFormat, err)
+	}
+
+	location := profiles.Location{
+		Country: input.Country,
+	}
+	if input.PostalCode != nil {
+		location.PostalCode = *input.PostalCode
+	}
+	if input.City != nil {
+		location.City = *input.City
+	}
+
+	newProfile := profiles.Profile{
+		DID:          did.String(),
+		FirstName:    input.Firstname,
+		LastName:     input.Lastname,
+		DateOfBirth:  dateOfBirth,
+		PrimaryEmail: input.PrimaryEmail,
+		Location:     location,
+	}
+
+	if input.Website != nil {
+		newProfile.Website = *input.Website
+	}
+	if input.PersonalGoal != nil {
+		newProfile.PersonalGoal = *input.PersonalGoal
+	}
+	if input.About != nil {
+		newProfile.About = *input.About
+	}
+
+	return &newProfile, nil
+}
