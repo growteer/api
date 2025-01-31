@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/growteer/api/infrastructure/tokens"
+	"github.com/growteer/api/internal/infrastructure/tokens"
 	"github.com/growteer/api/pkg/gqlutil"
 	"github.com/growteer/api/pkg/web3util"
 )
@@ -32,7 +32,7 @@ func UserSessionMiddleware(provider *tokens.Provider) func(http.Handler) http.Ha
 					w.WriteHeader(http.StatusUnauthorized)
 					return
 				}
-	
+
 				ctx := context.WithValue(r.Context(), ctxKeyUserDID, claims.Subject)
 				r = r.WithContext(ctx)
 			}
@@ -50,7 +50,7 @@ func GetAuthenticatedDID(ctx context.Context) (*web3util.DID, error) {
 
 	if err := web3util.VerifySolanaPublicKey(did.Address); err != nil {
 		slog.Warn("did in context did not include a valid solana public key", slog.Attr{
-			Key: "did",
+			Key:   "did",
 			Value: slog.StringValue(did.String()),
 		})
 
@@ -70,7 +70,7 @@ func DIDFromContext(ctx context.Context) (*web3util.DID, error) {
 	did, err := web3util.DIDFromString(rawDid)
 	if err != nil {
 		slog.Error(err.Error(), slog.Attr{
-			Key: "did",
+			Key:   "did",
 			Value: slog.StringValue(rawDid),
 		})
 
@@ -79,4 +79,3 @@ func DIDFromContext(ctx context.Context) (*web3util.DID, error) {
 
 	return did, nil
 }
-

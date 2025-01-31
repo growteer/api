@@ -11,7 +11,7 @@ import (
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/growteer/api/graph/model"
-	"github.com/growteer/api/infrastructure/session"
+	"github.com/growteer/api/internal/infrastructure/session"
 	"github.com/growteer/api/internal/profiles"
 	"github.com/growteer/api/pkg/gqlutil"
 	"github.com/growteer/api/pkg/web3util"
