@@ -22,7 +22,7 @@ func (r *mutationResolver) Onboard(ctx context.Context, profile model.NewProfile
 		return nil, err
 	}
 
-	newProfile, err := converters.ProfileFromSignupInput(ctx, did, &profile)
+	newProfile, err := converters.ProfileFromOnboardingInput(ctx, did, &profile)
 
 	savedProfile, err := r.profileService.CreateProfile(ctx, *newProfile)
 	if err != nil {

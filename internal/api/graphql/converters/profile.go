@@ -4,14 +4,13 @@ import (
 	"context"
 	"time"
 
-	"github.com/growteer/api/internal/api/graphql/gqlutil"
 	"github.com/growteer/api/internal/api/graphql/model"
 	"github.com/growteer/api/internal/app/apperrors"
 	"github.com/growteer/api/internal/profiles"
 	"github.com/growteer/api/pkg/web3util"
 )
 
-func ProfileFromSignupInput(ctx context.Context, did *web3util.DID, input *model.NewProfile) (*profiles.Profile, error) {
+func ProfileFromOnboardingInput(ctx context.Context, did *web3util.DID, input *model.NewProfile) (*profiles.Profile, error) {
 	dateOfBirth, err := time.Parse(time.DateOnly, input.DateOfBirth)
 	if err != nil {
 		return nil, apperrors.BadInput{
@@ -50,7 +49,11 @@ func ProfileFromSignupInput(ctx context.Context, did *web3util.DID, input *model
 func ProfileFromUpdateInput(ctx context.Context, did *web3util.DID, input *model.UpdatedProfile) (*profiles.Profile, error) {
 	dateOfBirth, err := time.Parse(time.DateOnly, input.DateOfBirth)
 	if err != nil {
-		return nil, gqlutil.BadInputError(ctx, "invalidly formatted date of birth", gqlutil.ErrCodeInvalidDateTimeFormat, err)
+		return nil, apperrors.BadInput{
+			Field:   "dateOfBirth",
+			Message: "invalid date format",
+			Wrapped: err,
+		}
 	}
 
 	location := profiles.Location{
