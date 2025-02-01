@@ -9,9 +9,9 @@ import (
 	"log/slog"
 
 	"github.com/growteer/api/internal/api/graphql/converters"
+	"github.com/growteer/api/internal/api/graphql/gqlutil"
 	"github.com/growteer/api/internal/api/graphql/model"
 	"github.com/growteer/api/internal/infrastructure/session"
-	"github.com/growteer/api/pkg/gqlutil"
 	"github.com/growteer/api/pkg/web3util"
 )
 

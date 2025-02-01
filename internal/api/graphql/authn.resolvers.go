@@ -8,8 +8,8 @@ import (
 	"context"
 
 	"github.com/99designs/gqlgen/graphql"
+	"github.com/growteer/api/internal/api/graphql/gqlutil"
 	"github.com/growteer/api/internal/api/graphql/model"
-	"github.com/growteer/api/pkg/gqlutil"
 	"github.com/growteer/api/pkg/web3util"
 )
 

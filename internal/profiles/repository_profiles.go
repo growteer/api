@@ -2,11 +2,10 @@ package profiles
 
 import (
 	"context"
-	"fmt"
 	"log/slog"
 	"time"
 
-	"github.com/growteer/api/pkg/gqlutil"
+	"github.com/growteer/api/internal/app/apperrors"
 	"github.com/growteer/api/pkg/web3util"
 	"go.mongodb.org/mongo-driver/bson"
 )
@@ -61,13 +60,16 @@ func (r *repository) Update(ctx context.Context, profile Profile) (*Profile, err
 	}
 
 	if result.MatchedCount == 0 {
-		err := fmt.Errorf("no profile found for updating")
+		err := apperrors.NotFound{
+			Message: "no profile found for updating",
+		}
+
 		slog.Warn(err.Error(), slog.Attr{
 			Key:   "did",
 			Value: slog.StringValue(profile.DID),
 		})
 
-		return nil, gqlutil.NotFoundError(ctx, err)
+		return nil, err
 	}
 
 	return &profile, nil

@@ -5,11 +5,11 @@ import (
 	"crypto/rand"
 	"encoding/hex"
 	"fmt"
-	"log/slog"
 	"strings"
 
+	"github.com/growteer/api/internal/api/graphql/gqlutil"
+	"github.com/growteer/api/internal/app/apperrors"
 	"github.com/growteer/api/internal/infrastructure/solana"
-	"github.com/growteer/api/pkg/gqlutil"
 	"github.com/growteer/api/pkg/web3util"
 )
 
@@ -18,16 +18,30 @@ const nonce_length = 32
 func (s *Service) Login(ctx context.Context, did *web3util.DID, message string, signature string) (sessionToken string, refreshToken string, err error) {
 	err = s.verifySignature(ctx, did, message, signature)
 	if err != nil {
-		return "", "", gqlutil.BadInputError(ctx, "invalid signature", gqlutil.ErrCodeInvalidCredentials, err)
+		return "", "", apperrors.BadInput{
+			Field:   "signature",
+			Message: "could not verify signature",
+			Wrapped: err,
+		}
+	}
+
+	sessionToken, refreshToken, err = s.createNewTokens(ctx, did)
+	if err != nil {
+		return "", "", apperrors.Internal{
+			Message: "could not create tokens",
+			Wrapped: err,
+		}
 	}
 
 	_, err = s.userRepo.GetByDID(ctx, did)
 	if err != nil {
-		slog.Error("failed getting profile by did", slog.Attr{Key: "did", Value: slog.StringValue(did.String())}, slog.Attr{Key: "error", Value: slog.StringValue(err.Error())})
-		_ = gqlutil.BadInputError(ctx, "user not signed up", gqlutil.ErrCodeUserNotSignedUp, err)
+		err = apperrors.NotFound{
+			Message: "user not signed up",
+			Wrapped: err,
+		}
 	}
 
-	return s.createNewTokens(ctx, did)
+	return sessionToken, refreshToken, err
 }
 
 func (s *Service) verifySignature(ctx context.Context, did *web3util.DID, message string, signature string) error {
