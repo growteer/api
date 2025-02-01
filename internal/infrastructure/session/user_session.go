@@ -7,8 +7,8 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/growteer/api/internal/app/apperrors"
 	"github.com/growteer/api/internal/infrastructure/tokens"
-	"github.com/growteer/api/pkg/gqlutil"
 	"github.com/growteer/api/pkg/web3util"
 )
 
@@ -45,16 +45,17 @@ func UserSessionMiddleware(provider *tokens.Provider) func(http.Handler) http.Ha
 func GetAuthenticatedDID(ctx context.Context) (*web3util.DID, error) {
 	did, err := DIDFromContext(ctx)
 	if err != nil {
-		return nil, gqlutil.AuthenticationError(ctx, err.Error(), err)
+		return nil, apperrors.Unauthenticated{
+			Message: "no did found in context",
+			Wrapped: err,
+		}
 	}
 
 	if err := web3util.VerifySolanaPublicKey(did.Address); err != nil {
-		slog.Warn("did in context did not include a valid solana public key", slog.Attr{
-			Key:   "did",
-			Value: slog.StringValue(did.String()),
-		})
-
-		return nil, gqlutil.AuthenticationError(ctx, err.Error(), err)
+		return nil, apperrors.Unauthenticated{
+			Message: "invalid solana public key",
+			Wrapped: err,
+		}
 	}
 
 	return did, nil

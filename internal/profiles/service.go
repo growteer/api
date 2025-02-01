@@ -3,8 +3,8 @@ package profiles
 import (
 	"context"
 
+	"github.com/growteer/api/internal/app/apperrors"
 	"github.com/growteer/api/internal/authz"
-	"github.com/growteer/api/pkg/gqlutil"
 	"github.com/growteer/api/pkg/web3util"
 )
 
@@ -36,7 +36,9 @@ func (s *Service) CreateProfile(ctx context.Context, profile Profile) (*Profile,
 
 func (s *Service) GetProfile(ctx context.Context, did *web3util.DID) (*Profile, error) {
 	if !s.authz.MayRead(ctx, did) {
-		return nil, gqlutil.NotFoundError(ctx, nil)
+		return nil, apperrors.NotFound{
+			Message: "profile not found",
+		}
 	}
 
 	return s.repo.GetByDID(ctx, did)
@@ -44,7 +46,9 @@ func (s *Service) GetProfile(ctx context.Context, did *web3util.DID) (*Profile, 
 
 func (s *Service) UpdateProfile(ctx context.Context, did *web3util.DID, profile *Profile) (*Profile, error) {
 	if !s.authz.MayUpdate(ctx, did) {
-		return nil, gqlutil.NotFoundError(ctx, nil)
+		return nil, apperrors.NotFound{
+			Message: "profile not found",
+		}
 	}
 
 	return s.repo.Update(ctx, *profile)

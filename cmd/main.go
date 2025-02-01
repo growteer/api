@@ -12,11 +12,11 @@ import (
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/go-chi/chi/v5"
 	"github.com/growteer/api/internal/api/graphql"
+	"github.com/growteer/api/internal/api/graphql/gqlutil"
 	"github.com/growteer/api/internal/infrastructure/environment"
 	"github.com/growteer/api/internal/infrastructure/mongodb"
 	"github.com/growteer/api/internal/infrastructure/session"
 	"github.com/growteer/api/internal/infrastructure/tokens"
-	"github.com/growteer/api/pkg/gqlutil"
 	"github.com/rs/cors"
 	"github.com/vektah/gqlparser/v2/ast"
 )
