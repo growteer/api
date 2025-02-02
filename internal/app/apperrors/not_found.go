@@ -1,6 +1,7 @@
 package apperrors
 
 type NotFound struct {
+	Code    ErrCode
 	Message string
 	Wrapped error
 }

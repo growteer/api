@@ -6,11 +6,10 @@ package graphql
 
 import (
 	"context"
-	"log/slog"
 
 	"github.com/growteer/api/internal/api/graphql/converters"
-	"github.com/growteer/api/internal/api/graphql/gqlutil"
 	"github.com/growteer/api/internal/api/graphql/model"
+	"github.com/growteer/api/internal/app/apperrors"
 	"github.com/growteer/api/internal/infrastructure/session"
 	"github.com/growteer/api/pkg/web3util"
 )
@@ -23,10 +22,13 @@ func (r *mutationResolver) Onboard(ctx context.Context, profile model.NewProfile
 	}
 
 	newProfile, err := converters.ProfileFromOnboardingInput(ctx, did, &profile)
+	if err != nil {
+		return nil, err
+	}
 
 	savedProfile, err := r.profileService.CreateProfile(ctx, *newProfile)
 	if err != nil {
-		return nil, gqlutil.InternalError(ctx, err.Error(), err)
+		return nil, err
 	}
 
 	gqlProfileModel := &model.Profile{
@@ -77,19 +79,17 @@ func (r *mutationResolver) UpdateProfile(ctx context.Context, profile model.Upda
 
 // Profile is the resolver for the profile field.
 func (r *queryResolver) Profile(ctx context.Context, userDid string) (*model.Profile, error) {
-	did, err := session.GetAuthenticatedDID(ctx)
+	_, err := session.GetAuthenticatedDID(ctx)
 	if err != nil {
 		return nil, err
 	}
 
 	parsedUserDID, err := web3util.DIDFromString(userDid)
 	if err != nil {
-		slog.Warn(err.Error(),
-			slog.Attr{Key: "profile", Value: slog.StringValue(userDid)},
-			slog.Attr{Key: "user", Value: slog.StringValue(did.String())},
-		)
-
-		return nil, gqlutil.BadInputError(ctx, "invalid did provided", gqlutil.ErrCodeInvalidInput, err)
+		return nil, apperrors.BadInput{
+			Code:    apperrors.ErrCodeInvalidInput,
+			Wrapped: err,
+		}
 	}
 
 	profile, err := r.profileService.GetProfile(ctx, parsedUserDID)

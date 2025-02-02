@@ -1,9 +1,9 @@
 package apperrors
 
 type BadInput struct {
-	Wrapped error
+	Code    ErrCode
 	Message string
-	Field   string
+	Wrapped error
 }
 
 func (e BadInput) Error() string {

@@ -1,4 +1,6 @@
-package gqlutil
+package apperrors
+
+type ErrCode = string
 
 const (
 	ErrCodeUnauthenticated       ErrCode = "auth.not_authenticated"

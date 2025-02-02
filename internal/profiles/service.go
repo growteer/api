@@ -28,7 +28,11 @@ func NewService(repo Repository) *Service {
 func (s *Service) CreateProfile(ctx context.Context, profile Profile) (*Profile, error) {
 	savedProfile, err := s.repo.Create(ctx, profile)
 	if err != nil {
-		return nil, err
+		return nil, apperrors.Internal{
+			Code:    apperrors.ErrCodeCouldNotSaveProfile,
+			Message: "could not save new profile",
+			Wrapped: err,
+		}
 	}
 
 	return savedProfile, nil

@@ -14,7 +14,6 @@ func ProfileFromOnboardingInput(ctx context.Context, did *web3util.DID, input *m
 	dateOfBirth, err := time.Parse(time.DateOnly, input.DateOfBirth)
 	if err != nil {
 		return nil, apperrors.BadInput{
-			Field:   "dateOfBirth",
 			Message: "invalid date format",
 			Wrapped: err,
 		}
@@ -50,7 +49,6 @@ func ProfileFromUpdateInput(ctx context.Context, did *web3util.DID, input *model
 	dateOfBirth, err := time.Parse(time.DateOnly, input.DateOfBirth)
 	if err != nil {
 		return nil, apperrors.BadInput{
-			Field:   "dateOfBirth",
 			Message: "invalid date format",
 			Wrapped: err,
 		}
