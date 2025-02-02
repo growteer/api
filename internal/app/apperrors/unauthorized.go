@@ -1,9 +1,9 @@
 package apperrors
 
 type Unauthorized struct {
-	Message           string
-	Wrapped           error
-	MissingPermission string
+	Code    ErrCode
+	Message string
+	Wrapped error
 }
 
 func (e Unauthorized) Error() string {

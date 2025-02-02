@@ -1,6 +1,7 @@
 package apperrors
 
 type Internal struct {
+	Code    ErrCode
 	Message string
 	Wrapped error
 }

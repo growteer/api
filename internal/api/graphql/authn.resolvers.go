@@ -8,15 +8,19 @@ import (
 	"context"
 
 	"github.com/99designs/gqlgen/graphql"
-	"github.com/growteer/api/internal/api/graphql/gqlutil"
 	"github.com/growteer/api/internal/api/graphql/model"
+	"github.com/growteer/api/internal/app/apperrors"
 	"github.com/growteer/api/pkg/web3util"
 )
 
 // GenerateNonce is the resolver for the generateNonce field.
 func (r *mutationResolver) GenerateNonce(ctx context.Context, address string) (*model.NonceResult, error) {
 	if err := web3util.VerifySolanaPublicKey(address); err != nil {
-		return nil, gqlutil.BadInputError(ctx, "invalid solana address", gqlutil.ErrCodeInvalidCredentials, err)
+		return nil, apperrors.BadInput{
+			Code:    apperrors.ErrCodeInvalidCredentials,
+			Message: "invalid solana address provided to generate nonce",
+			Wrapped: err,
+		}
 	}
 
 	did := web3util.NewDID(web3util.DIDMethodPKH, web3util.NamespaceSolana, address)
@@ -34,7 +38,11 @@ func (r *mutationResolver) GenerateNonce(ctx context.Context, address string) (*
 // Login is the resolver for the login field.
 func (r *mutationResolver) Login(ctx context.Context, input model.LoginDetails) (*model.AuthResult, error) {
 	if err := web3util.VerifySolanaPublicKey(input.Address); err != nil {
-		return nil, gqlutil.BadInputError(ctx, "invalid solana address", gqlutil.ErrCodeInvalidCredentials, err)
+		return nil, apperrors.BadInput{
+			Code:    apperrors.ErrCodeInvalidCredentials,
+			Message: "invalid solana address provided to login",
+			Wrapped: err,
+		}
 	}
 
 	did := web3util.NewDID(web3util.DIDMethodPKH, web3util.NamespaceSolana, input.Address)

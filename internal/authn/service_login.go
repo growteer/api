@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/growteer/api/internal/api/graphql/gqlutil"
 	"github.com/growteer/api/internal/app/apperrors"
 	"github.com/growteer/api/internal/infrastructure/solana"
 	"github.com/growteer/api/pkg/web3util"
@@ -19,7 +18,6 @@ func (s *Service) Login(ctx context.Context, did *web3util.DID, message string, 
 	err = s.verifySignature(ctx, did, message, signature)
 	if err != nil {
 		return "", "", apperrors.BadInput{
-			Field:   "signature",
 			Message: "could not verify signature",
 			Wrapped: err,
 		}
@@ -66,14 +64,22 @@ func (s *Service) GenerateNonce(ctx context.Context, did *web3util.DID) (string,
 
 	_, err := rand.Read(bytes)
 	if err != nil {
-		return "", gqlutil.InternalError(ctx, "could not generate nonce", err)
+		return "", apperrors.Internal{
+			Code:    apperrors.ErrCodeInternalError,
+			Message: "could not generate nonce",
+			Wrapped: err,
+		}
 	}
 
 	encoded := hex.EncodeToString(bytes)
 	nonce := encoded + ":" + did.Address
 
 	if err = s.authRepo.SaveNonce(ctx, did, nonce); err != nil {
-		return "", gqlutil.InternalError(ctx, "could not save nonce", err)
+		return "", apperrors.Internal{
+			Code:    apperrors.ErrCodeInternalError,
+			Message: "could not save nonce",
+			Wrapped: err,
+		}
 	}
 
 	return nonce, nil

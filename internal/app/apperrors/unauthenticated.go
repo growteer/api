@@ -1,11 +1,11 @@
 package apperrors
 
 type Unauthenticated struct {
+	Code    ErrCode
 	Message string
 	Wrapped error
 }
 
-// implement the error interface for the custom error type
 func (e Unauthenticated) Error() string {
 	return e.Message
 }
