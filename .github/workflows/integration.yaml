@@ -1,0 +1,52 @@
+name: Integration Pipeline
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  checks: write
+  contents: read
+  pull-requests: write
+
+env:
+  GOPATH: ${{ github.workspace }}/../go
+  GO_VERSION: 1.23
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+
+      - name: Install Task
+        uses: arduino/setup-task@v2
+
+      - name: Lint
+        run: task lint
+
+      - name: Test
+        run: task test-with-reports
+
+      - name: Publish Test Results
+        if: success() || failure()
+        uses: dorny/test-reporter@v1.9.1
+        with:
+          name: Unit & Integration Tests
+          path: reports/junit-report.xml
+          reporter: java-junit
+
+      - name: Build
+        run: task build
