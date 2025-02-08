@@ -10,15 +10,15 @@ import (
 )
 
 type daoRefreshToken struct {
-	DID string `bson:"_id"`
-	Token string `bson:"token"`
+	DID       string    `bson:"_id"`
+	Token     string    `bson:"token"`
 	CreatedAt time.Time `bson:"createdAt"`
 }
 
 func (r *repository) SaveRefreshToken(ctx context.Context, did *web3util.DID, token string) error {
 	newRecord := daoRefreshToken{
-		DID: did.String(),
-		Token: token,
+		DID:       did.String(),
+		Token:     token,
 		CreatedAt: time.Now(),
 	}
 
