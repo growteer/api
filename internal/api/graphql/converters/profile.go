@@ -5,12 +5,12 @@ import (
 	"time"
 
 	"github.com/growteer/api/internal/api/graphql/model"
-	"github.com/growteer/api/internal/app/profiles"
 	"github.com/growteer/api/internal/app/shared/apperrors"
+	"github.com/growteer/api/internal/entities"
 	"github.com/growteer/api/pkg/web3util"
 )
 
-func ProfileFromOnboardingInput(ctx context.Context, did *web3util.DID, input *model.NewProfile) (*profiles.Profile, error) {
+func ProfileFromOnboardingInput(ctx context.Context, did *web3util.DID, input *model.NewProfile) (*entities.Profile, error) {
 	dateOfBirth, err := time.Parse(time.DateOnly, input.DateOfBirth)
 	if err != nil {
 		return nil, apperrors.BadInput{
@@ -19,7 +19,7 @@ func ProfileFromOnboardingInput(ctx context.Context, did *web3util.DID, input *m
 		}
 	}
 
-	location := profiles.Location{
+	location := entities.Location{
 		Country: input.Country,
 	}
 	if input.PostalCode != nil {
@@ -29,7 +29,7 @@ func ProfileFromOnboardingInput(ctx context.Context, did *web3util.DID, input *m
 		location.City = *input.City
 	}
 
-	newProfile := profiles.Profile{
+	profile := &entities.Profile{
 		DID:          did.String(),
 		FirstName:    input.Firstname,
 		LastName:     input.Lastname,
@@ -39,13 +39,13 @@ func ProfileFromOnboardingInput(ctx context.Context, did *web3util.DID, input *m
 	}
 
 	if input.Website != nil {
-		newProfile.Website = *input.Website
+		profile.Website = *input.Website
 	}
 
-	return &newProfile, nil
+	return profile, nil
 }
 
-func ProfileFromUpdateInput(ctx context.Context, did *web3util.DID, input *model.UpdatedProfile) (*profiles.Profile, error) {
+func ProfileFromUpdateInput(ctx context.Context, did *web3util.DID, input *model.UpdatedProfile) (*entities.Profile, error) {
 	dateOfBirth, err := time.Parse(time.DateOnly, input.DateOfBirth)
 	if err != nil {
 		return nil, apperrors.BadInput{
@@ -54,7 +54,7 @@ func ProfileFromUpdateInput(ctx context.Context, did *web3util.DID, input *model
 		}
 	}
 
-	location := profiles.Location{
+	location := entities.Location{
 		Country: input.Country,
 	}
 	if input.PostalCode != nil {
@@ -64,7 +64,7 @@ func ProfileFromUpdateInput(ctx context.Context, did *web3util.DID, input *model
 		location.City = *input.City
 	}
 
-	newProfile := profiles.Profile{
+	profile := &entities.Profile{
 		DID:          did.String(),
 		FirstName:    input.Firstname,
 		LastName:     input.Lastname,
@@ -74,14 +74,14 @@ func ProfileFromUpdateInput(ctx context.Context, did *web3util.DID, input *model
 	}
 
 	if input.Website != nil {
-		newProfile.Website = *input.Website
+		profile.Website = *input.Website
 	}
 	if input.PersonalGoal != nil {
-		newProfile.PersonalGoal = *input.PersonalGoal
+		profile.PersonalGoal = *input.PersonalGoal
 	}
 	if input.About != nil {
-		newProfile.About = *input.About
+		profile.About = *input.About
 	}
 
-	return &newProfile, nil
+	return profile, nil
 }
