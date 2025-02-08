@@ -32,8 +32,8 @@ func (r *mutationResolver) Onboard(ctx context.Context, profile model.NewProfile
 	}
 
 	gqlProfileModel := &model.Profile{
-		Firstname:    savedProfile.FirstName,
-		Lastname:     savedProfile.LastName,
+		FirstName:    savedProfile.FirstName,
+		LastName:     savedProfile.LastName,
 		PrimaryEmail: savedProfile.PrimaryEmail,
 		Location: &model.Location{
 			Country:    savedProfile.Location.Country,
@@ -63,8 +63,8 @@ func (r *mutationResolver) UpdateProfile(ctx context.Context, profile model.Upda
 	}
 
 	return &model.Profile{
-		Firstname:    updatedProfile.FirstName,
-		Lastname:     updatedProfile.LastName,
+		FirstName:    updatedProfile.FirstName,
+		LastName:     updatedProfile.LastName,
 		PrimaryEmail: updatedProfile.PrimaryEmail,
 		Location: &model.Location{
 			Country:    updatedProfile.Location.Country,
@@ -98,8 +98,8 @@ func (r *queryResolver) Profile(ctx context.Context, userDid string) (*model.Pro
 	}
 
 	profileDTO := &model.Profile{
-		Firstname:    profile.FirstName,
-		Lastname:     profile.LastName,
+		FirstName:    profile.FirstName,
+		LastName:     profile.LastName,
 		PrimaryEmail: profile.PrimaryEmail,
 		DateOfBirth:  profile.DateOfBirth.String(),
 		Location: &model.Location{

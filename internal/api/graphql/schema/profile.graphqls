@@ -8,8 +8,8 @@ extend type Query {
 }
 
 type Profile {
-  firstname: String!
-  lastname: String!
+  firstName: String!
+  lastName: String!
   dateOfBirth: String!
   primaryEmail: String!
   location: Location!
@@ -28,8 +28,8 @@ type Location {
 # Inputs #
 ##########
 input NewProfile {
-  firstname: String!
-  lastname: String!
+  firstName: String!
+  lastName: String!
   dateOfBirth: String!
   primaryEmail: String!
   country: String!
@@ -39,8 +39,8 @@ input NewProfile {
 }
 
 input UpdatedProfile {
-  firstname: String!
-  lastname: String!
+  firstName: String!
+  lastName: String!
   dateOfBirth: String!
   primaryEmail: String!
   country: String!
