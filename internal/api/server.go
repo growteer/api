@@ -1,4 +1,4 @@
-package main
+package api
 
 import (
 	"fmt"
@@ -26,7 +26,7 @@ type GQLServer struct {
 	router *chi.Mux
 }
 
-func (s *GQLServer) start() {
+func (s *GQLServer) Start() {
 	slog.Info(fmt.Sprintf("connect on port %d for GraphQL playground", s.port))
 
 	err := http.ListenAndServe(fmt.Sprintf(":%d", s.port), s.router)
