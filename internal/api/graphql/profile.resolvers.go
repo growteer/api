@@ -26,7 +26,7 @@ func (r *mutationResolver) Onboard(ctx context.Context, profile model.NewProfile
 		return nil, err
 	}
 
-	savedProfile, err := r.profileService.CreateProfile(ctx, *newProfile)
+	savedProfile, err := r.profileService.CreateProfile(ctx, newProfile)
 	if err != nil {
 		return nil, err
 	}
