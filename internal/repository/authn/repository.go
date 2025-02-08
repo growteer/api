@@ -12,13 +12,13 @@ const db_collection_nonces = "nonces"
 const db_collection_refresh_tokens = "refresh_tokens"
 
 type repository struct {
-	nonces *mongo.Collection
+	nonces        *mongo.Collection
 	refreshTokens *mongo.Collection
 }
 
 func NewRepository(db *mongo.Database) (*repository, error) {
 	repo := &repository{
-		nonces: db.Collection(db_collection_nonces),
+		nonces:        db.Collection(db_collection_nonces),
 		refreshTokens: db.Collection(db_collection_refresh_tokens),
 	}
 
@@ -26,7 +26,7 @@ func NewRepository(db *mongo.Database) (*repository, error) {
 		Keys: bson.D{
 			{Key: "createdAt", Value: 1},
 		},
-		Options: options.Index().SetExpireAfterSeconds(10*60), // Auto-delete Nonces after 10 minutes
+		Options: options.Index().SetExpireAfterSeconds(10 * 60), // Auto-delete Nonces after 10 minutes
 	}
 
 	_, err := repo.nonces.Indexes().CreateOne(context.Background(), indexModel)

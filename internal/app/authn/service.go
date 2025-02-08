@@ -7,24 +7,13 @@ import (
 	"github.com/growteer/api/pkg/web3util"
 )
 
-type Repository interface {
-	GetNonceByDID(ctx context.Context, did *web3util.DID) (string, error)
-	SaveNonce(ctx context.Context, did *web3util.DID, nonce string) error
-	GetRefreshTokenByDID(ctx context.Context, did *web3util.DID) (string, error)
-	SaveRefreshToken(ctx context.Context, did *web3util.DID, token string) error
-}
-
-type UserRepository interface {
-	Exists(ctx context.Context, did *web3util.DID) bool
-}
-
 type Service struct {
-	authRepo      Repository
+	authRepo      AuthnRepository
+	userRepo      ProfileRepository
 	tokenProvider TokenProvider
-	userRepo      UserRepository
 }
 
-func NewService(authRepo Repository, tokenProvider TokenProvider, userRepo UserRepository) *Service {
+func NewService(authRepo AuthnRepository, tokenProvider TokenProvider, userRepo ProfileRepository) *Service {
 	return &Service{
 		authRepo:      authRepo,
 		tokenProvider: tokenProvider,
