@@ -10,13 +10,13 @@ import (
 	"github.com/growteer/api/internal/api/graphql/converters"
 	"github.com/growteer/api/internal/api/graphql/model"
 	"github.com/growteer/api/internal/app/apperrors"
-	"github.com/growteer/api/internal/infrastructure/session"
+	"github.com/growteer/api/internal/authn"
 	"github.com/growteer/api/pkg/web3util"
 )
 
 // Onboard is the resolver for the onboard field.
 func (r *mutationResolver) Onboard(ctx context.Context, profile model.NewProfile) (*model.Profile, error) {
-	did, err := session.GetAuthenticatedDID(ctx)
+	did, err := authn.GetAuthenticatedDID(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -47,7 +47,7 @@ func (r *mutationResolver) Onboard(ctx context.Context, profile model.NewProfile
 
 // UpdateProfile is the resolver for the updateProfile field.
 func (r *mutationResolver) UpdateProfile(ctx context.Context, profile model.UpdatedProfile) (*model.Profile, error) {
-	did, err := session.GetAuthenticatedDID(ctx)
+	did, err := authn.GetAuthenticatedDID(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -79,7 +79,7 @@ func (r *mutationResolver) UpdateProfile(ctx context.Context, profile model.Upda
 
 // Profile is the resolver for the profile field.
 func (r *queryResolver) Profile(ctx context.Context, userDid string) (*model.Profile, error) {
-	_, err := session.GetAuthenticatedDID(ctx)
+	_, err := authn.GetAuthenticatedDID(ctx)
 	if err != nil {
 		return nil, err
 	}
