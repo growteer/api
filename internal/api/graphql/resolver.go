@@ -2,7 +2,9 @@ package graphql
 
 import (
 	authnApp "github.com/growteer/api/internal/app/authn"
-	"github.com/growteer/api/internal/app/profiles"
+	profilesApp "github.com/growteer/api/internal/app/profiles"
+	profilesRepo "github.com/growteer/api/internal/repository/profiles"
+
 	authnRepo "github.com/growteer/api/internal/repository/authn"
 	"go.mongodb.org/mongo-driver/mongo"
 )
@@ -13,7 +15,7 @@ import (
 
 type Resolver struct {
 	authnService   *authnApp.Service
-	profileService *profiles.Service
+	profileService *profilesApp.Service
 }
 
 func NewResolver(db *mongo.Database, tokenProvider authnApp.TokenProvider) *Resolver {
@@ -22,10 +24,10 @@ func NewResolver(db *mongo.Database, tokenProvider authnApp.TokenProvider) *Reso
 		panic(err)
 	}
 
-	profileRepo := profiles.NewRepository(db)
+	profileRepo := profilesRepo.NewRepository(db)
 
 	return &Resolver{
 		authnService:   authnApp.NewService(authnRepo, tokenProvider, profileRepo),
-		profileService: profiles.NewService(profileRepo),
+		profileService: profilesApp.NewService(profileRepo),
 	}
 }
