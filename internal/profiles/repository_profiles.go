@@ -30,6 +30,20 @@ type Location struct {
 	City       string `bson:"city"`
 }
 
+func (r *repository) Exists(ctx context.Context, did *web3util.DID) bool {
+	var result Profile
+	if err := r.profiles.FindOne(ctx, bson.M{"_id": did.String()}).Decode(&result); err != nil {
+		slog.Debug("profile not found", slog.Attr{
+			Key:   "did",
+			Value: slog.StringValue(did.String()),
+		})
+
+		return false
+	}
+
+	return true
+}
+
 func (r *repository) Create(ctx context.Context, profile Profile) (*Profile, error) {
 	profile.CreatedAt = time.Now()
 	profile.UpdatedAt = profile.CreatedAt
