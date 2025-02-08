@@ -3,7 +3,7 @@ package authz
 import (
 	"log/slog"
 
-	"github.com/growteer/api/internal/authn"
+	"github.com/growteer/api/internal/app/shared/appctx"
 	"github.com/growteer/api/pkg/web3util"
 	"golang.org/x/net/context"
 )
@@ -11,7 +11,7 @@ import (
 type Profiles struct{}
 
 func (p *Profiles) MayRead(ctx context.Context, profileToRead *web3util.DID) bool {
-	did, err := authn.DIDFromContext(ctx)
+	did, err := appctx.DIDFromContext(ctx)
 	if err != nil {
 		slog.Error(err.Error())
 		return false
@@ -36,7 +36,7 @@ func (p *Profiles) MayRead(ctx context.Context, profileToRead *web3util.DID) boo
 }
 
 func (p *Profiles) MayUpdate(ctx context.Context, profileToUpdate *web3util.DID) bool {
-	did, err := authn.DIDFromContext(ctx)
+	did, err := appctx.DIDFromContext(ctx)
 	if err != nil {
 		slog.Error(err.Error())
 		return false

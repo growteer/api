@@ -7,7 +7,7 @@ import (
 	"log/slog"
 
 	"github.com/99designs/gqlgen/graphql"
-	"github.com/growteer/api/internal/app/apperrors"
+	"github.com/growteer/api/internal/app/shared/apperrors"
 	"github.com/vektah/gqlparser/v2/gqlerror"
 )
 

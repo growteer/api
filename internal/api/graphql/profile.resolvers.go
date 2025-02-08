@@ -9,8 +9,8 @@ import (
 
 	"github.com/growteer/api/internal/api/graphql/converters"
 	"github.com/growteer/api/internal/api/graphql/model"
-	"github.com/growteer/api/internal/app/apperrors"
-	"github.com/growteer/api/internal/authn"
+	"github.com/growteer/api/internal/app/authn"
+	"github.com/growteer/api/internal/app/shared/apperrors"
 	"github.com/growteer/api/pkg/web3util"
 )
 
