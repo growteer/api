@@ -5,8 +5,8 @@ import (
 	"time"
 
 	"github.com/growteer/api/internal/api/graphql/model"
-	"github.com/growteer/api/internal/app/apperrors"
-	"github.com/growteer/api/internal/profiles"
+	"github.com/growteer/api/internal/app/profiles"
+	"github.com/growteer/api/internal/app/shared/apperrors"
 	"github.com/growteer/api/pkg/web3util"
 )
 
