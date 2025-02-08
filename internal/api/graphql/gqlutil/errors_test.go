@@ -6,7 +6,7 @@ import (
 	"testing"
 
 	"github.com/growteer/api/internal/api/graphql/gqlutil"
-	"github.com/growteer/api/internal/app/apperrors"
+	"github.com/growteer/api/internal/app/shared/apperrors"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

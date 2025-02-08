@@ -13,7 +13,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/growteer/api/internal/api/graphql"
 	"github.com/growteer/api/internal/api/graphql/gqlutil"
-	"github.com/growteer/api/internal/authn"
+	"github.com/growteer/api/internal/app/authn"
 	"github.com/growteer/api/internal/infrastructure/environment"
 	"github.com/rs/cors"
 	"github.com/vektah/gqlparser/v2/ast"

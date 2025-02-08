@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/growteer/api/internal/app/apperrors"
+	"github.com/growteer/api/internal/app/shared/apperrors"
 	"github.com/growteer/api/internal/infrastructure/solana"
 	"github.com/growteer/api/pkg/web3util"
 )

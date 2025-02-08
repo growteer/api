@@ -1,8 +1,8 @@
 package graphql
 
 import (
-	"github.com/growteer/api/internal/authn"
-	"github.com/growteer/api/internal/profiles"
+	"github.com/growteer/api/internal/app/authn"
+	"github.com/growteer/api/internal/app/profiles"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 

@@ -5,7 +5,7 @@ import (
 	"log/slog"
 	"time"
 
-	"github.com/growteer/api/internal/app/apperrors"
+	"github.com/growteer/api/internal/app/shared/apperrors"
 	"github.com/growteer/api/pkg/web3util"
 	"go.mongodb.org/mongo-driver/bson"
 )

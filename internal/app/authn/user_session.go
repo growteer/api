@@ -2,20 +2,14 @@ package authn
 
 import (
 	"context"
-	"fmt"
 	"log/slog"
 	"net/http"
 	"strings"
 
-	"github.com/growteer/api/internal/app/apperrors"
+	"github.com/growteer/api/internal/app/shared/appctx"
+	"github.com/growteer/api/internal/app/shared/apperrors"
 	"github.com/growteer/api/pkg/web3util"
 )
-
-type contextKey struct {
-	Name string
-}
-
-var ctxKeyUserDID = &contextKey{"userDID"}
 
 func UserSessionMiddleware(provider TokenProvider) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
@@ -32,7 +26,7 @@ func UserSessionMiddleware(provider TokenProvider) func(http.Handler) http.Handl
 					return
 				}
 
-				ctx := context.WithValue(r.Context(), ctxKeyUserDID, claims.Subject)
+				ctx := appctx.ContextWithDID(r.Context(), claims.Subject)
 				r = r.WithContext(ctx)
 			}
 
@@ -42,7 +36,7 @@ func UserSessionMiddleware(provider TokenProvider) func(http.Handler) http.Handl
 }
 
 func GetAuthenticatedDID(ctx context.Context) (*web3util.DID, error) {
-	did, err := DIDFromContext(ctx)
+	did, err := appctx.DIDFromContext(ctx)
 	if err != nil {
 		return nil, apperrors.Unauthenticated{
 			Message: "no did found in context",
@@ -55,26 +49,6 @@ func GetAuthenticatedDID(ctx context.Context) (*web3util.DID, error) {
 			Message: "invalid solana public key",
 			Wrapped: err,
 		}
-	}
-
-	return did, nil
-}
-
-func DIDFromContext(ctx context.Context) (*web3util.DID, error) {
-	rawDid, ok := ctx.Value(ctxKeyUserDID).(string)
-	if !ok {
-		err := fmt.Errorf("no did found in context")
-		return nil, err
-	}
-
-	did, err := web3util.DIDFromString(rawDid)
-	if err != nil {
-		slog.Error(err.Error(), slog.Attr{
-			Key:   "did",
-			Value: slog.StringValue(rawDid),
-		})
-
-		return nil, err
 	}
 
 	return did, nil

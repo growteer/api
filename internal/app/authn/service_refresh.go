@@ -3,7 +3,7 @@ package authn
 import (
 	"context"
 
-	"github.com/growteer/api/internal/app/apperrors"
+	"github.com/growteer/api/internal/app/shared/apperrors"
 	"github.com/growteer/api/pkg/web3util"
 )
 

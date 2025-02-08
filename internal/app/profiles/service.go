@@ -3,8 +3,8 @@ package profiles
 import (
 	"context"
 
-	"github.com/growteer/api/internal/app/apperrors"
-	"github.com/growteer/api/internal/authz"
+	"github.com/growteer/api/internal/app/authz"
+	"github.com/growteer/api/internal/app/shared/apperrors"
 	"github.com/growteer/api/pkg/web3util"
 )
 
