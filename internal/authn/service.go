@@ -3,9 +3,7 @@ package authn
 import (
 	"context"
 
-	"github.com/golang-jwt/jwt/v5"
 	"github.com/growteer/api/internal/app/apperrors"
-	"github.com/growteer/api/internal/profiles"
 	"github.com/growteer/api/pkg/web3util"
 )
 
@@ -17,13 +15,7 @@ type Repository interface {
 }
 
 type UserRepository interface {
-	GetByDID(ctx context.Context, did *web3util.DID) (*profiles.Profile, error)
-}
-
-type TokenProvider interface {
-	NewSessionToken(did *web3util.DID) (string, error)
-	NewRefreshToken(did *web3util.DID) (string, error)
-	ParseRefreshToken(token string) (claims *jwt.RegisteredClaims, err error)
+	Exists(ctx context.Context, did *web3util.DID) bool
 }
 
 type Service struct {
