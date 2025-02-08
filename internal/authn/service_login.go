@@ -31,11 +31,9 @@ func (s *Service) Login(ctx context.Context, did *web3util.DID, message string, 
 		}
 	}
 
-	_, err = s.userRepo.GetByDID(ctx, did)
-	if err != nil {
+	if !s.userRepo.Exists(ctx, did) {
 		err = apperrors.NotFound{
-			Message: "user not signed up",
-			Wrapped: err,
+			Message: "user not sign",
 		}
 	}
 
