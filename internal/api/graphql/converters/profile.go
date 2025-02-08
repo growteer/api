@@ -31,8 +31,8 @@ func ProfileFromOnboardingInput(ctx context.Context, did *web3util.DID, input *m
 
 	profile := &entities.Profile{
 		DID:          did.String(),
-		FirstName:    input.Firstname,
-		LastName:     input.Lastname,
+		FirstName:    input.FirstName,
+		LastName:     input.LastName,
 		DateOfBirth:  dateOfBirth,
 		PrimaryEmail: input.PrimaryEmail,
 		Location:     location,
@@ -66,8 +66,8 @@ func ProfileFromUpdateInput(ctx context.Context, did *web3util.DID, input *model
 
 	profile := &entities.Profile{
 		DID:          did.String(),
-		FirstName:    input.Firstname,
-		LastName:     input.Lastname,
+		FirstName:    input.FirstName,
+		LastName:     input.LastName,
 		DateOfBirth:  dateOfBirth,
 		PrimaryEmail: input.PrimaryEmail,
 		Location:     location,

@@ -83,8 +83,8 @@ type ComplexityRoot struct {
 	Profile struct {
 		About        func(childComplexity int) int
 		DateOfBirth  func(childComplexity int) int
-		Firstname    func(childComplexity int) int
-		Lastname     func(childComplexity int) int
+		FirstName    func(childComplexity int) int
+		LastName     func(childComplexity int) int
 		Location     func(childComplexity int) int
 		PersonalGoal func(childComplexity int) int
 		PrimaryEmail func(childComplexity int) int
@@ -273,19 +273,19 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Profile.DateOfBirth(childComplexity), true
 
-	case "Profile.firstname":
-		if e.complexity.Profile.Firstname == nil {
+	case "Profile.firstName":
+		if e.complexity.Profile.FirstName == nil {
 			break
 		}
 
-		return e.complexity.Profile.Firstname(childComplexity), true
+		return e.complexity.Profile.FirstName(childComplexity), true
 
-	case "Profile.lastname":
-		if e.complexity.Profile.Lastname == nil {
+	case "Profile.lastName":
+		if e.complexity.Profile.LastName == nil {
 			break
 		}
 
-		return e.complexity.Profile.Lastname(childComplexity), true
+		return e.complexity.Profile.LastName(childComplexity), true
 
 	case "Profile.location":
 		if e.complexity.Profile.Location == nil {
@@ -1290,10 +1290,10 @@ func (ec *executionContext) fieldContext_Mutation_onboard(ctx context.Context, f
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "firstname":
-				return ec.fieldContext_Profile_firstname(ctx, field)
-			case "lastname":
-				return ec.fieldContext_Profile_lastname(ctx, field)
+			case "firstName":
+				return ec.fieldContext_Profile_firstName(ctx, field)
+			case "lastName":
+				return ec.fieldContext_Profile_lastName(ctx, field)
 			case "dateOfBirth":
 				return ec.fieldContext_Profile_dateOfBirth(ctx, field)
 			case "primaryEmail":
@@ -1363,10 +1363,10 @@ func (ec *executionContext) fieldContext_Mutation_updateProfile(ctx context.Cont
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "firstname":
-				return ec.fieldContext_Profile_firstname(ctx, field)
-			case "lastname":
-				return ec.fieldContext_Profile_lastname(ctx, field)
+			case "firstName":
+				return ec.fieldContext_Profile_firstName(ctx, field)
+			case "lastName":
+				return ec.fieldContext_Profile_lastName(ctx, field)
 			case "dateOfBirth":
 				return ec.fieldContext_Profile_dateOfBirth(ctx, field)
 			case "primaryEmail":
@@ -1441,8 +1441,8 @@ func (ec *executionContext) fieldContext_NonceResult_nonce(_ context.Context, fi
 	return fc, nil
 }
 
-func (ec *executionContext) _Profile_firstname(ctx context.Context, field graphql.CollectedField, obj *model.Profile) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Profile_firstname(ctx, field)
+func (ec *executionContext) _Profile_firstName(ctx context.Context, field graphql.CollectedField, obj *model.Profile) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Profile_firstName(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -1455,7 +1455,7 @@ func (ec *executionContext) _Profile_firstname(ctx context.Context, field graphq
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Firstname, nil
+		return obj.FirstName, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1472,7 +1472,7 @@ func (ec *executionContext) _Profile_firstname(ctx context.Context, field graphq
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Profile_firstname(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Profile_firstName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Profile",
 		Field:      field,
@@ -1485,8 +1485,8 @@ func (ec *executionContext) fieldContext_Profile_firstname(_ context.Context, fi
 	return fc, nil
 }
 
-func (ec *executionContext) _Profile_lastname(ctx context.Context, field graphql.CollectedField, obj *model.Profile) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Profile_lastname(ctx, field)
+func (ec *executionContext) _Profile_lastName(ctx context.Context, field graphql.CollectedField, obj *model.Profile) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Profile_lastName(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -1499,7 +1499,7 @@ func (ec *executionContext) _Profile_lastname(ctx context.Context, field graphql
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Lastname, nil
+		return obj.LastName, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1516,7 +1516,7 @@ func (ec *executionContext) _Profile_lastname(ctx context.Context, field graphql
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Profile_lastname(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Profile_lastName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Profile",
 		Field:      field,
@@ -1872,10 +1872,10 @@ func (ec *executionContext) fieldContext_Query_profile(ctx context.Context, fiel
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "firstname":
-				return ec.fieldContext_Profile_firstname(ctx, field)
-			case "lastname":
-				return ec.fieldContext_Profile_lastname(ctx, field)
+			case "firstName":
+				return ec.fieldContext_Profile_firstName(ctx, field)
+			case "lastName":
+				return ec.fieldContext_Profile_lastName(ctx, field)
 			case "dateOfBirth":
 				return ec.fieldContext_Profile_dateOfBirth(ctx, field)
 			case "primaryEmail":
@@ -3856,27 +3856,27 @@ func (ec *executionContext) unmarshalInputNewProfile(ctx context.Context, obj in
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"firstname", "lastname", "dateOfBirth", "primaryEmail", "country", "postalCode", "city", "website"}
+	fieldsInOrder := [...]string{"firstName", "lastName", "dateOfBirth", "primaryEmail", "country", "postalCode", "city", "website"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
 			continue
 		}
 		switch k {
-		case "firstname":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("firstname"))
+		case "firstName":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("firstName"))
 			data, err := ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.Firstname = data
-		case "lastname":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("lastname"))
+			it.FirstName = data
+		case "lastName":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("lastName"))
 			data, err := ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.Lastname = data
+			it.LastName = data
 		case "dateOfBirth":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("dateOfBirth"))
 			data, err := ec.unmarshalNString2string(ctx, v)
@@ -3959,27 +3959,27 @@ func (ec *executionContext) unmarshalInputUpdatedProfile(ctx context.Context, ob
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"firstname", "lastname", "dateOfBirth", "primaryEmail", "country", "postalCode", "city", "website", "personalGoal", "about"}
+	fieldsInOrder := [...]string{"firstName", "lastName", "dateOfBirth", "primaryEmail", "country", "postalCode", "city", "website", "personalGoal", "about"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
 			continue
 		}
 		switch k {
-		case "firstname":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("firstname"))
+		case "firstName":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("firstName"))
 			data, err := ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.Firstname = data
-		case "lastname":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("lastname"))
+			it.FirstName = data
+		case "lastName":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("lastName"))
 			data, err := ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.Lastname = data
+			it.LastName = data
 		case "dateOfBirth":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("dateOfBirth"))
 			data, err := ec.unmarshalNString2string(ctx, v)
@@ -4348,13 +4348,13 @@ func (ec *executionContext) _Profile(ctx context.Context, sel ast.SelectionSet, 
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Profile")
-		case "firstname":
-			out.Values[i] = ec._Profile_firstname(ctx, field, obj)
+		case "firstName":
+			out.Values[i] = ec._Profile_firstName(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		case "lastname":
-			out.Values[i] = ec._Profile_lastname(ctx, field, obj)
+		case "lastName":
+			out.Values[i] = ec._Profile_lastName(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
