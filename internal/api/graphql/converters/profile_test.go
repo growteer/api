@@ -28,8 +28,8 @@ func Test_ProfileFromOnboardingInput(t *testing.T) {
 		ctx := context.Background()
 		did := web3util.NewDID(web3util.DIDMethodPKH, web3util.NamespaceSolana, solanaPublicKey)
 		input := &model.NewProfile{
-			Firstname:    "John",
-			Lastname:     "Doe",
+			FirstName:    "John",
+			LastName:     "Doe",
 			DateOfBirth:  validDateOfBirth,
 			PrimaryEmail: mailAddress,
 			Country:      "US",
@@ -44,8 +44,8 @@ func Test_ProfileFromOnboardingInput(t *testing.T) {
 		// then
 		require.NoError(t, err)
 		require.Equal(t, did.String(), profile.DID)
-		require.Equal(t, input.Firstname, profile.FirstName)
-		require.Equal(t, input.Lastname, profile.LastName)
+		require.Equal(t, input.FirstName, profile.FirstName)
+		require.Equal(t, input.LastName, profile.LastName)
 		require.Equal(t, input.PrimaryEmail, profile.PrimaryEmail)
 		require.Equal(t, input.Country, profile.Location.Country)
 		require.Equal(t, postalCode, profile.Location.PostalCode)
@@ -60,8 +60,8 @@ func Test_ProfileFromOnboardingInput(t *testing.T) {
 		ctx := context.Background()
 		did := web3util.NewDID(web3util.DIDMethodPKH, web3util.NamespaceSolana, solanaPublicKey)
 		input := &model.NewProfile{
-			Firstname:    "John",
-			Lastname:     "Doe",
+			FirstName:    "John",
+			LastName:     "Doe",
 			DateOfBirth:  validDateOfBirth,
 			PrimaryEmail: mailAddress,
 			Country:      "US",
@@ -73,8 +73,8 @@ func Test_ProfileFromOnboardingInput(t *testing.T) {
 		// then
 		require.NoError(t, err)
 		require.Equal(t, did.String(), profile.DID)
-		require.Equal(t, input.Firstname, profile.FirstName)
-		require.Equal(t, input.Lastname, profile.LastName)
+		require.Equal(t, input.FirstName, profile.FirstName)
+		require.Equal(t, input.LastName, profile.LastName)
 		require.Equal(t, input.PrimaryEmail, profile.PrimaryEmail)
 		require.Equal(t, input.Country, profile.Location.Country)
 		require.Equal(t, "", profile.Location.PostalCode)
@@ -89,8 +89,8 @@ func Test_ProfileFromOnboardingInput(t *testing.T) {
 		ctx := context.Background()
 		did := web3util.NewDID(web3util.DIDMethodPKH, web3util.NamespaceSolana, solanaPublicKey)
 		input := &model.NewProfile{
-			Firstname:    "John",
-			Lastname:     "Doe",
+			FirstName:    "John",
+			LastName:     "Doe",
 			DateOfBirth:  invalidDateOfBirth,
 			PrimaryEmail: mailAddress,
 			Country:      "US",
@@ -120,8 +120,8 @@ func Test_ProfileFromUpdateInput(t *testing.T) {
 		about := "About me"
 
 		input := &model.UpdatedProfile{
-			Firstname:    "John",
-			Lastname:     "Doe",
+			FirstName:    "John",
+			LastName:     "Doe",
 			DateOfBirth:  validDateOfBirth,
 			PrimaryEmail: mailAddress,
 			Country:      "US",
@@ -138,8 +138,8 @@ func Test_ProfileFromUpdateInput(t *testing.T) {
 		// then
 		require.NoError(t, err)
 		require.Equal(t, did.String(), profile.DID)
-		require.Equal(t, input.Firstname, profile.FirstName)
-		require.Equal(t, input.Lastname, profile.LastName)
+		require.Equal(t, input.FirstName, profile.FirstName)
+		require.Equal(t, input.LastName, profile.LastName)
 		require.Equal(t, input.PrimaryEmail, profile.PrimaryEmail)
 		require.Equal(t, input.Country, profile.Location.Country)
 		require.Equal(t, postalCode, profile.Location.PostalCode)
@@ -154,8 +154,8 @@ func Test_ProfileFromUpdateInput(t *testing.T) {
 		ctx := context.Background()
 		did := web3util.NewDID(web3util.DIDMethodPKH, web3util.NamespaceSolana, solanaPublicKey)
 		input := &model.UpdatedProfile{
-			Firstname:    "John",
-			Lastname:     "Doe",
+			FirstName:    "John",
+			LastName:     "Doe",
 			DateOfBirth:  validDateOfBirth,
 			PrimaryEmail: mailAddress,
 			Country:      "US",
@@ -167,8 +167,8 @@ func Test_ProfileFromUpdateInput(t *testing.T) {
 		// then
 		require.NoError(t, err)
 		require.Equal(t, did.String(), profile.DID)
-		require.Equal(t, input.Firstname, profile.FirstName)
-		require.Equal(t, input.Lastname, profile.LastName)
+		require.Equal(t, input.FirstName, profile.FirstName)
+		require.Equal(t, input.LastName, profile.LastName)
 		require.Equal(t, input.PrimaryEmail, profile.PrimaryEmail)
 		require.Equal(t, input.Country, profile.Location.Country)
 		require.Equal(t, "", profile.Location.PostalCode)
@@ -183,8 +183,8 @@ func Test_ProfileFromUpdateInput(t *testing.T) {
 		ctx := context.Background()
 		did := web3util.NewDID(web3util.DIDMethodPKH, web3util.NamespaceSolana, solanaPublicKey)
 		input := &model.UpdatedProfile{
-			Firstname:    "John",
-			Lastname:     "Doe",
+			FirstName:    "John",
+			LastName:     "Doe",
 			DateOfBirth:  invalidDateOfBirth,
 			PrimaryEmail: mailAddress,
 			Country:      "US",

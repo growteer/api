@@ -38,8 +38,8 @@ type Mutation struct {
 }
 
 type NewProfile struct {
-	Firstname    string  `json:"firstname"`
-	Lastname     string  `json:"lastname"`
+	FirstName    string  `json:"firstName"`
+	LastName     string  `json:"lastName"`
 	DateOfBirth  string  `json:"dateOfBirth"`
 	PrimaryEmail string  `json:"primaryEmail"`
 	Country      string  `json:"country"`
@@ -53,8 +53,8 @@ type NonceResult struct {
 }
 
 type Profile struct {
-	Firstname    string    `json:"firstname"`
-	Lastname     string    `json:"lastname"`
+	FirstName    string    `json:"firstName"`
+	LastName     string    `json:"lastName"`
 	DateOfBirth  string    `json:"dateOfBirth"`
 	PrimaryEmail string    `json:"primaryEmail"`
 	Location     *Location `json:"location"`
@@ -71,8 +71,8 @@ type RefreshInput struct {
 }
 
 type UpdatedProfile struct {
-	Firstname    string  `json:"firstname"`
-	Lastname     string  `json:"lastname"`
+	FirstName    string  `json:"firstName"`
+	LastName     string  `json:"lastName"`
 	DateOfBirth  string  `json:"dateOfBirth"`
 	PrimaryEmail string  `json:"primaryEmail"`
 	Country      string  `json:"country"`
