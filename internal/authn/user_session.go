@@ -1,4 +1,4 @@
-package session
+package authn
 
 import (
 	"context"
@@ -8,7 +8,6 @@ import (
 	"strings"
 
 	"github.com/growteer/api/internal/app/apperrors"
-	"github.com/growteer/api/internal/infrastructure/tokens"
 	"github.com/growteer/api/pkg/web3util"
 )
 
@@ -18,7 +17,7 @@ type contextKey struct {
 
 var ctxKeyUserDID = &contextKey{"userDID"}
 
-func UserSessionMiddleware(provider *tokens.Provider) func(http.Handler) http.Handler {
+func UserSessionMiddleware(provider TokenProvider) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			authHeader := r.Header.Get("Authorization")
