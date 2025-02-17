@@ -48,5 +48,12 @@ jobs:
           path: reports/junit-report.xml
           reporter: java-junit
 
+      - name: Codacy Coverage Reporter
+        uses: codacy/codacy-coverage-reporter-action@v1.3.0
+        with:
+          project-token: ${{ secrets.CODACY_TOKEN }}
+          coverage-reports: reports/coverage.out
+          force-coverage-parser: go
+          
       - name: Build
         run: task build
