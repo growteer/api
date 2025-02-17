@@ -10,6 +10,10 @@ vars:
   VERSION_GOCOV: v1.1.0
   VERSION_GOCOV_XML: v1.1.0
   VERSION_GOLANGCI_LINT: v1.63.4
+  TESTABLE_DIRS:
+    - ./internal/...
+    - ./pkg/...
+  TESTABLE_DIRS_STRING: {{join " " .TESTABLE_DIRS}}
 
 tasks:
   db:
@@ -70,7 +74,7 @@ tasks:
       - task: test-tools
       - mkdir -p {{ .REPORTS }}
       - cmd: |
-          go test ./... -v \
+          go test {{ join " " .TESTABLE_DIRS }} -v \
             -covermode=atomic \
             -coverprofile={{ .COVERAGE_PROFILE }} \
             -json > {{ .REPORTS }}/test-report.json
