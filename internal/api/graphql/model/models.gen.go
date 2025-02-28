@@ -8,11 +8,6 @@ import (
 	"strconv"
 )
 
-type AuthResult struct {
-	SessionToken string `json:"sessionToken"`
-	RefreshToken string `json:"refreshToken"`
-}
-
 type Error struct {
 	Extensions *ErrorExtensions `json:"extensions,omitempty"`
 }
@@ -32,6 +27,12 @@ type LoginDetails struct {
 	Address   string `json:"address"`
 	Message   string `json:"message"`
 	Signature string `json:"signature"`
+}
+
+type LoginResult struct {
+	IsOnboarded  bool   `json:"isOnboarded"`
+	SessionToken string `json:"sessionToken"`
+	RefreshToken string `json:"refreshToken"`
 }
 
 type Mutation struct {
@@ -67,6 +68,11 @@ type Query struct {
 }
 
 type RefreshInput struct {
+	RefreshToken string `json:"refreshToken"`
+}
+
+type RefreshResult struct {
+	SessionToken string `json:"sessionToken"`
 	RefreshToken string `json:"refreshToken"`
 }
 
