@@ -7,7 +7,6 @@ package graphql
 import (
 	"context"
 
-	"github.com/99designs/gqlgen/graphql"
 	"github.com/growteer/api/internal/api/graphql/model"
 	"github.com/growteer/api/internal/app/shared/apperrors"
 	"github.com/growteer/api/pkg/web3util"
@@ -36,7 +35,7 @@ func (r *mutationResolver) GenerateNonce(ctx context.Context, address string) (*
 }
 
 // Login is the resolver for the login field.
-func (r *mutationResolver) Login(ctx context.Context, input model.LoginDetails) (*model.AuthResult, error) {
+func (r *mutationResolver) Login(ctx context.Context, input model.LoginDetails) (*model.LoginResult, error) {
 	if err := web3util.VerifySolanaPublicKey(input.Address); err != nil {
 		return nil, apperrors.BadInput{
 			Code:    apperrors.ErrCodeInvalidCredentials,
@@ -47,25 +46,27 @@ func (r *mutationResolver) Login(ctx context.Context, input model.LoginDetails) 
 
 	did := web3util.NewDID(web3util.DIDMethodPKH, web3util.NamespaceSolana, input.Address)
 
-	sessionToken, refreshToken, err := r.authnService.Login(ctx, did, input.Message, input.Signature)
+	sessionToken, refreshToken, isOnboarded, err := r.authnService.Login(ctx, did, input.Message, input.Signature)
+
 	if err != nil {
-		graphql.AddError(ctx, err)
+		return nil, err
 	}
 
-	return &model.AuthResult{
+	return &model.LoginResult{
+		IsOnboarded:  isOnboarded,
 		SessionToken: sessionToken,
 		RefreshToken: refreshToken,
 	}, nil
 }
 
 // RefreshSession is the resolver for the refreshSession field.
-func (r *mutationResolver) RefreshSession(ctx context.Context, input model.RefreshInput) (*model.AuthResult, error) {
+func (r *mutationResolver) RefreshSession(ctx context.Context, input model.RefreshInput) (*model.RefreshResult, error) {
 	sessionToken, refreshToken, err := r.authnService.RefreshSession(ctx, input.RefreshToken)
 	if err != nil {
 		return nil, err
 	}
 
-	return &model.AuthResult{
+	return &model.RefreshResult{
 		SessionToken: sessionToken,
 		RefreshToken: refreshToken,
 	}, nil
