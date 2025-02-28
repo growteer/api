@@ -14,10 +14,10 @@ import (
 
 const nonce_length = 32
 
-func (s *Service) Login(ctx context.Context, did *web3util.DID, message string, signature string) (sessionToken string, refreshToken string, err error) {
+func (s *Service) Login(ctx context.Context, did *web3util.DID, message string, signature string) (sessionToken string, refreshToken string, isOnboarded bool, err error) {
 	err = s.verifySignature(ctx, did, message, signature)
 	if err != nil {
-		return "", "", apperrors.BadInput{
+		return "", "", false, apperrors.BadInput{
 			Message: "could not verify signature",
 			Wrapped: err,
 		}
@@ -25,19 +25,15 @@ func (s *Service) Login(ctx context.Context, did *web3util.DID, message string, 
 
 	sessionToken, refreshToken, err = s.createNewTokens(ctx, did)
 	if err != nil {
-		return "", "", apperrors.Internal{
+		return "", "", false, apperrors.Internal{
 			Message: "could not create tokens",
 			Wrapped: err,
 		}
 	}
 
-	if !s.userRepo.Exists(ctx, did) {
-		err = apperrors.NotFound{
-			Message: "user not sign",
-		}
-	}
+	isOnboarded = s.userRepo.Exists(ctx, did)
 
-	return sessionToken, refreshToken, err
+	return sessionToken, refreshToken, isOnboarded, nil
 }
 
 func (s *Service) verifySignature(ctx context.Context, did *web3util.DID, message string, signature string) error {
