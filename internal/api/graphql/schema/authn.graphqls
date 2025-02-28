@@ -1,7 +1,7 @@
 extend type Mutation {
   generateNonce(address: String!): NonceResult!
-  login(input: LoginDetails!): AuthResult!
-  refreshSession(input: RefreshInput!): AuthResult!
+  login(input: LoginDetails!): LoginResult!
+  refreshSession(input: RefreshInput!): RefreshResult!
 }
 
 #########
@@ -11,7 +11,13 @@ type NonceResult {
   nonce: String!
 }
 
-type AuthResult {
+type LoginResult {
+  isOnboarded: Boolean!
+  sessionToken: String!
+  refreshToken: String!
+}
+
+type RefreshResult {
   sessionToken: String!
   refreshToken: String!
 }
