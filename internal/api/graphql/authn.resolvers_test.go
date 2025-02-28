@@ -25,7 +25,7 @@ const (
 	testRefreshToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJyZWZyZXNoVG9rZW4iLCJpYXQiOjE2MjYwNzQwNzcsImV4cCI6MTYyNjA3NzY3N30.7Q7J9"
 )
 
-func Test_AuthNResolver(t *testing.T) {
+func Test_Login(t *testing.T) {
 	mongoEnv, terminateDB := testcontainer.StartMongoAndGetDetails(t)
 	defer terminateDB()
 
@@ -33,7 +33,7 @@ func Test_AuthNResolver(t *testing.T) {
 	tokenProvider := authn.NewMockTokenProvider(t)
 	resolver := graphql.NewResolver(db, tokenProvider)
 
-	t.Run("Login success, user not onboarded", func(t *testing.T) {
+	t.Run("success, user not onboarded", func(t *testing.T) {
 		//given
 		privKey, pubKeyBase58 := fixtures.GenerateEd25519KeyPair(t)
 		did := web3util.NewDID(web3util.DIDMethodPKH, web3util.NamespaceSolana, pubKeyBase58)
@@ -55,7 +55,7 @@ func Test_AuthNResolver(t *testing.T) {
 		assert.Equal(t, testSessionToken, loginResult.SessionToken)
 	})
 
-	t.Run("Login success, user onboarded", func(t *testing.T) {
+	t.Run("success, user onboarded", func(t *testing.T) {
 		//given
 		privKey, pubKeyBase58 := fixtures.GenerateEd25519KeyPair(t)
 		did := web3util.NewDID(web3util.DIDMethodPKH, web3util.NamespaceSolana, pubKeyBase58)
@@ -84,7 +84,7 @@ func Test_AuthNResolver(t *testing.T) {
 		assert.NotEmpty(t, loginResult.SessionToken)
 	})
 
-	t.Run("Login fail, invalid address", func(t *testing.T) {
+	t.Run("fail, invalid address", func(t *testing.T) {
 		//given
 		privKey, pubKeyBase58 := fixtures.GenerateEd25519KeyPair(t)
 		did := web3util.NewDID(web3util.DIDMethodPKH, web3util.NamespaceSolana, pubKeyBase58)
@@ -104,7 +104,7 @@ func Test_AuthNResolver(t *testing.T) {
 		assert.Nil(t, loginResult)
 	})
 
-	t.Run("Login fail, nonce not found", func(t *testing.T) {
+	t.Run("fail, nonce not found", func(t *testing.T) {
 		//given
 		privKey, pubKeyBase58 := fixtures.GenerateEd25519KeyPair(t)
 		did := web3util.NewDID(web3util.DIDMethodPKH, web3util.NamespaceSolana, pubKeyBase58)
@@ -121,7 +121,7 @@ func Test_AuthNResolver(t *testing.T) {
 		assert.Nil(t, loginResult)
 	})
 
-	t.Run("Login fail, invalid signature", func(t *testing.T) {
+	t.Run("fail, invalid signature", func(t *testing.T) {
 		//given
 		privKey, pubKeyBase58 := fixtures.GenerateEd25519KeyPair(t)
 		did := web3util.NewDID(web3util.DIDMethodPKH, web3util.NamespaceSolana, pubKeyBase58)
@@ -141,8 +141,17 @@ func Test_AuthNResolver(t *testing.T) {
 		require.ErrorAs(t, err, &apperrors.BadInput{})
 		assert.Nil(t, loginResult)
 	})
+}
 
-	t.Run("GenerateNonce fail, invalid address", func(t *testing.T) {
+func Test_GenerateNonce(t *testing.T) {
+	mongoEnv, terminateDB := testcontainer.StartMongoAndGetDetails(t)
+	defer terminateDB()
+
+	db := mongodb.NewDB(mongoEnv)
+	tokenProvider := authn.NewMockTokenProvider(t)
+	resolver := graphql.NewResolver(db, tokenProvider)
+
+	t.Run("fail, invalid address", func(t *testing.T) {
 		//given
 		_, pubKeyBase58 := fixtures.GenerateEd25519KeyPair(t)
 		pubKeyRaw, err := base58.Decode(pubKeyBase58)
@@ -160,8 +169,17 @@ func Test_AuthNResolver(t *testing.T) {
 		require.ErrorAs(t, err, &apperrors.BadInput{})
 		assert.Nil(t, nonceResult)
 	})
+}
 
-	t.Run("Refresh success", func(t *testing.T) {
+func Test_Refresh(t *testing.T) {
+	mongoEnv, terminateDB := testcontainer.StartMongoAndGetDetails(t)
+	defer terminateDB()
+
+	db := mongodb.NewDB(mongoEnv)
+	tokenProvider := authn.NewMockTokenProvider(t)
+	resolver := graphql.NewResolver(db, tokenProvider)
+
+	t.Run("success", func(t *testing.T) {
 		//given
 		_, pubKeyBase58 := fixtures.GenerateEd25519KeyPair(t)
 		did := web3util.NewDID(web3util.DIDMethodPKH, web3util.NamespaceSolana, pubKeyBase58)
@@ -187,7 +205,7 @@ func Test_AuthNResolver(t *testing.T) {
 		assert.Equal(t, testSessionToken, refreshResult.SessionToken)
 	})
 
-	t.Run("Refresh fail, non-existent refresh token", func(t *testing.T) {
+	t.Run("fail, non-existent refresh token", func(t *testing.T) {
 		//given
 		_, pubKeyBase58 := fixtures.GenerateEd25519KeyPair(t)
 		did := web3util.NewDID(web3util.DIDMethodPKH, web3util.NamespaceSolana, pubKeyBase58)
