@@ -22,14 +22,14 @@ import (
 
 type GQLServer struct {
 	*handler.Server
+	Router *chi.Mux
 	port   int
-	router *chi.Mux
 }
 
 func (s *GQLServer) Start() {
 	slog.Info(fmt.Sprintf("connect on port %d for GraphQL playground", s.port))
 
-	err := http.ListenAndServe(fmt.Sprintf(":%d", s.port), s.router)
+	err := http.ListenAndServe(fmt.Sprintf(":%d", s.port), s.Router)
 	if err != nil && err != http.ErrServerClosed {
 		slog.Error("server unexpectedly shut down", "error", err)
 	} else {
@@ -57,8 +57,8 @@ func NewServer(env environment.ServerEnv, db *mongo.Database, tokenProvider auth
 
 	return &GQLServer{
 		Server: server,
+		Router: newRouter(env, server, tokenProvider),
 		port:   env.HTTPPort,
-		router: newRouter(env, server, tokenProvider),
 	}
 }
 
