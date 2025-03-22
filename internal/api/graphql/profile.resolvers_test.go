@@ -18,12 +18,21 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+const (
+	sessionToken string = "eyBCDQogICAgImRpZCI6ICJkaWQ6c2FsYW5hOk1vZGVsIiwNCiAgICAicHJpbWFyeUlkIjogImRpZDpzaGFyZTpNb2RlbCIsDQogICAgImVtYWlsIjogInRlc3RAZXhhbXBsZS5jb20iDQp9"
+
+	onboardMutation string = `mutation Signup($firstName: String!, $lastName: String!, $dateOfBirth: String!, $primaryEmail: String!, $country: String!) {
+		onboard(profile: { firstName: $firstName, lastName: $lastName, dateOfBirth: $dateOfBirth, primaryEmail: $primaryEmail, country: $country }) {
+			firstName
+			lastName
+		}
+	}`
+)
+
 func Test_Onboard(t *testing.T) {
 	mongoEnv, terminateDB := testcontainer.StartMongoAndGetDetails(t)
 	defer terminateDB()
 	db := mongodb.NewDB(mongoEnv)
-
-	sessionToken := "eyBCDQogICAgImRpZCI6ICJkaWQ6c2FsYW5hOk1vZGVsIiwNCiAgICAicHJpbWFyeUlkIjogImRpZDpzaGFyZTpNb2RlbCIsDQogICAgImVtYWlsIjogInRlc3RAZXhhbXBsZS5jb20iDQp9"
 
 	_, pubKeyBase58 := fixtures.GenerateEd25519KeyPair(t)
 	did := web3util.NewDID(web3util.DIDMethodPKH, web3util.NamespaceSolana, pubKeyBase58)
@@ -34,15 +43,26 @@ func Test_Onboard(t *testing.T) {
 	gqlServer := api.NewServer(environment.ServerEnv{HTTPPort: 8080}, db, tokenProvider)
 	gqlClient := client.New(gqlServer.Router, client.Path("/query"), client.AddHeader("Authorization", "Bearer "+sessionToken))
 
-	t.Run("success", func(t *testing.T) {
-		//given
-		onboardMutation := `mutation Signup($firstName: String!, $lastName: String!, $dateOfBirth: String!, $primaryEmail: String!, $country: String!) {
-				onboard(profile: { firstName: $firstName, lastName: $lastName, dateOfBirth: $dateOfBirth, primaryEmail: $primaryEmail, country: $country }) {
-					firstName
-					lastName
-				}
-			}`
+	t.Run("fail, invalid input", func(t *testing.T) {
+		//when
+		var onboardResult struct{ Onboard model.Profile }
+		err := gqlClient.Post(
+			onboardMutation,
+			&onboardResult,
+			client.Var("firstName", "John"),
+			client.Var("lastName", "Doe"),
+			client.Var("dateOfBirth", "invaliddate"),
+			client.Var("primaryEmail", "test@example.com"),
+			client.Var("country", "US"),
+		)
 
+		//then
+		require.Error(t, err)
+		assert.Contains(t, err.Error(), "BAD_INPUT")
+		assert.Empty(t, onboardResult.Onboard)
+	})
+
+	t.Run("success", func(t *testing.T) {
 		//when
 		var onboardResult struct{ Onboard model.Profile }
 		err := gqlClient.Post(
