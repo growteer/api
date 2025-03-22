@@ -39,9 +39,8 @@ func Recover(ctx context.Context, err interface{}) error {
 
 func PresentError(ctx context.Context, err error) *gqlerror.Error {
 	slog.Error(err.Error())
-	graphql.AddError(ctx, toGQLError(ctx, err))
 
-	return nil
+	return toGQLError(ctx, err)
 }
 
 func toGQLError(ctx context.Context, err error) *gqlerror.Error {
