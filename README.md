@@ -1,1 +1,1 @@
-[![Codacy Badge](https://app.codacy.com/project/badge/Grade/ba6b7f114f12420fa39607d9d892f6a4)](https://app.codacy.com/gh/growteer/api/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade) [![Codacy Badge](https://app.codacy.com/project/badge/Coverage/ba6b7f114f12420fa39607d9d892f6a4)](https://app.codacy.com/gh/growteer/api/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_coverage)
+[![codecov](https://codecov.io/gh/growteer/api/graph/badge.svg?token=Y6SAD10060)](https://codecov.io/gh/growteer/api)
