@@ -63,12 +63,16 @@ func Test_Login(t *testing.T) {
 		tokenProvider.EXPECT().NewSessionToken(did).Return(testSessionToken, nil)
 		tokenProvider.EXPECT().NewRefreshToken(did).Return(testRefreshToken, nil)
 
-		db.Collection("profiles").InsertOne(context.Background(), map[string]interface{}{
+		_, err := db.Collection("profiles").InsertOne(context.Background(), map[string]interface{}{
 			"_id": web3util.NewDID(web3util.DIDMethodPKH, web3util.NamespaceSolana, pubKeyBase58).String(),
 		})
-		defer db.Collection("profiles").DeleteOne(context.Background(), map[string]interface{}{
-			"_id": web3util.NewDID(web3util.DIDMethodPKH, web3util.NamespaceSolana, pubKeyBase58).String(),
-		})
+		require.NoError(t, err)
+		defer func() {
+			_, err := db.Collection("profiles").DeleteOne(context.Background(), map[string]interface{}{
+				"_id": web3util.NewDID(web3util.DIDMethodPKH, web3util.NamespaceSolana, pubKeyBase58).String(),
+			})
+			require.NoError(t, err)
+		}()
 
 		//when
 		nonceResult, err := resolver.Mutation().GenerateNonce(context.Background(), pubKeyBase58)
@@ -185,10 +189,11 @@ func Test_Refresh(t *testing.T) {
 		did := web3util.NewDID(web3util.DIDMethodPKH, web3util.NamespaceSolana, pubKeyBase58)
 		initialRefreshToken := "eyKMlcCI6MTYyNjA3NzY3N30.7Q7J9"
 
-		db.Collection("refresh_tokens").InsertOne(context.Background(), map[string]interface{}{
+		_, err := db.Collection("refresh_tokens").InsertOne(context.Background(), map[string]interface{}{
 			"_id":   did.String(),
 			"token": initialRefreshToken,
 		})
+		require.NoError(t, err)
 
 		tokenProvider.EXPECT().NewSessionToken(did).Return(testSessionToken, nil)
 		tokenProvider.EXPECT().NewRefreshToken(did).Return(testRefreshToken, nil)
