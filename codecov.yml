@@ -1,0 +1,4 @@
+ignore:
+  - "**/*.gen.go"
+  - "testing/**/*"
+  - "tools/**/*"
