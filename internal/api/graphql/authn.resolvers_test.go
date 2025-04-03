@@ -64,7 +64,7 @@ func Test_Login(t *testing.T) {
 		tokenProvider.EXPECT().NewRefreshToken(did).Return(testRefreshToken, nil)
 
 		_, err := db.Collection("profiles").InsertOne(context.Background(), map[string]interface{}{
-			"_id": web3util.NewDID(web3util.DIDMethodPKH, web3util.NamespaceSolana, pubKeyBase58).String(),
+			"did": web3util.NewDID(web3util.DIDMethodPKH, web3util.NamespaceSolana, pubKeyBase58).String(),
 		})
 		require.NoError(t, err)
 		defer func() {
