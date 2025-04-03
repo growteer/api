@@ -7,7 +7,7 @@ import (
 )
 
 type Profile struct {
-	DID          string    `bson:"_id"`
+	DID          string    `bson:"did"`
 	FirstName    string    `bson:"firstName"`
 	LastName     string    `bson:"lastName"`
 	DateOfBirth  time.Time `bson:"dateOfBirth"`
