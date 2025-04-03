@@ -65,6 +65,7 @@ func (r *mutationResolver) UpdateProfile(ctx context.Context, profile model.Upda
 	return &model.Profile{
 		FirstName:    updatedProfile.FirstName,
 		LastName:     updatedProfile.LastName,
+		DateOfBirth:  updatedProfile.DateOfBirth.String(),
 		PrimaryEmail: updatedProfile.PrimaryEmail,
 		Location: &model.Location{
 			Country:    updatedProfile.Location.Country,
