@@ -11,9 +11,7 @@ build:
         dependencies:
           paths:
             - cmd
-            - graph
             - helm
-            - infrastructure
             - internal
             - pkg
   local:
