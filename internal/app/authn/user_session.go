@@ -11,26 +11,44 @@ import (
 	"github.com/growteer/api/pkg/web3util"
 )
 
+var invalidSessionResponse = []byte(`{
+  "errors": [
+    {
+      "message": "invalid session token",
+      "extensions": {
+        "type": "UNAUTHENTICATED"
+      }
+    }
+  ]
+}`)
+
 func UserSessionMiddleware(provider TokenProvider) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			authHeader := r.Header.Get("Authorization")
 			headerParts := strings.SplitN(authHeader, " ", 2)
 
-			if len(headerParts) == 2 && strings.ToLower(headerParts[0]) == "bearer" {
-				sessionToken := headerParts[1]
-				claims, err := provider.ParseSessionToken(sessionToken)
-				if err != nil {
-					slog.Error("unable to parse session token")
-					w.WriteHeader(http.StatusUnauthorized)
-					return
-				}
-
-				ctx := appctx.ContextWithDID(r.Context(), claims.Subject)
-				r = r.WithContext(ctx)
+			if len(headerParts) != 2 || strings.ToLower(headerParts[0]) != "bearer" {
+				next.ServeHTTP(w, r)
+				return
 			}
 
-			next.ServeHTTP(w, r)
+			sessionToken := headerParts[1]
+			claims, err := provider.ParseSessionToken(sessionToken)
+			if err == nil {
+				ctx := appctx.ContextWithDID(r.Context(), claims.Subject)
+				r = r.WithContext(ctx)
+
+				next.ServeHTTP(w, r)
+				return
+			}
+
+			slog.Warn("unable to parse session token", slog.String("error", err.Error()))
+
+			_, err = w.Write(invalidSessionResponse)
+			if err != nil {
+				slog.Error("unable to write invalid session response", slog.String("error", err.Error()))
+			}
 		})
 	}
 }
