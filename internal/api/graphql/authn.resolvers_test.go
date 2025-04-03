@@ -50,7 +50,7 @@ func Test_Login(t *testing.T) {
 		require.NoError(t, err)
 
 		//then
-		assert.False(t, loginResult.IsOnboarded)
+		assert.False(t, loginResult.State.IsOnboarded)
 		assert.Equal(t, testRefreshToken, loginResult.RefreshToken)
 		assert.Equal(t, testSessionToken, loginResult.SessionToken)
 	})
@@ -83,7 +83,7 @@ func Test_Login(t *testing.T) {
 		require.NoError(t, err)
 
 		//then
-		assert.True(t, loginResult.IsOnboarded)
+		assert.True(t, loginResult.State.IsOnboarded)
 		assert.NotEmpty(t, loginResult.RefreshToken)
 		assert.NotEmpty(t, loginResult.SessionToken)
 	})

@@ -47,13 +47,12 @@ func (r *mutationResolver) Login(ctx context.Context, input model.LoginDetails) 
 	did := web3util.NewDID(web3util.DIDMethodPKH, web3util.NamespaceSolana, input.Address)
 
 	sessionToken, refreshToken, isOnboarded, err := r.authnService.Login(ctx, did, input.Message, input.Signature)
-
 	if err != nil {
 		return nil, err
 	}
 
 	return &model.LoginResult{
-		IsOnboarded:  isOnboarded,
+		State:        &model.UserState{IsOnboarded: isOnboarded},
 		SessionToken: sessionToken,
 		RefreshToken: refreshToken,
 	}, nil

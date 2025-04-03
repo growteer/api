@@ -12,7 +12,7 @@ type NonceResult {
 }
 
 type LoginResult {
-  isOnboarded: Boolean!
+  state: UserState!
   sessionToken: String!
   refreshToken: String!
 }
@@ -20,6 +20,10 @@ type LoginResult {
 type RefreshResult {
   sessionToken: String!
   refreshToken: String!
+}
+
+type UserState {
+  isOnboarded: Boolean!
 }
 
 ##########
