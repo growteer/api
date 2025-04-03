@@ -13,7 +13,7 @@ import (
 
 func (r *repository) Exists(ctx context.Context, did *web3util.DID) bool {
 	var result Profile
-	if err := r.profiles.FindOne(ctx, bson.M{"_id": did.String()}).Decode(&result); err != nil {
+	if err := r.profiles.FindOne(ctx, bson.M{"did": did.String()}).Decode(&result); err != nil {
 		slog.Debug("profile not found", slog.Attr{
 			Key:   "did",
 			Value: slog.StringValue(did.String()),
@@ -29,7 +29,8 @@ func (r *repository) Create(ctx context.Context, profile *entities.Profile) (*en
 	profile.CreatedAt = time.Now()
 	profile.UpdatedAt = profile.CreatedAt
 
-	_, err := r.profiles.InsertOne(ctx, profile)
+	dao := DAOFromEntity(profile)
+	_, err := r.profiles.InsertOne(ctx, dao)
 	if err != nil {
 		return nil, err
 	}
@@ -38,20 +39,20 @@ func (r *repository) Create(ctx context.Context, profile *entities.Profile) (*en
 }
 
 func (r *repository) GetByDID(ctx context.Context, did *web3util.DID) (*entities.Profile, error) {
-	var result Profile
-	err := r.profiles.FindOne(ctx, bson.M{"_id": did.String()}).Decode(&result)
+	var dao Profile
+	err := r.profiles.FindOne(ctx, bson.M{"did": did.String()}).Decode(&dao)
 	if err != nil {
 		return nil, err
 	}
 
-	return result.ToEntity(), nil
+	return dao.ToEntity(), nil
 }
 
 func (r *repository) Update(ctx context.Context, profile *entities.Profile) (*entities.Profile, error) {
 	profile.UpdatedAt = time.Now()
 
 	dao := DAOFromEntity(profile)
-	result, err := r.profiles.ReplaceOne(ctx, bson.M{"_id": profile.DID}, dao)
+	result, err := r.profiles.ReplaceOne(ctx, bson.M{"did": profile.DID}, dao)
 	if err != nil {
 		return nil, err
 	}
