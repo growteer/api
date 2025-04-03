@@ -30,9 +30,9 @@ type LoginDetails struct {
 }
 
 type LoginResult struct {
-	IsOnboarded  bool   `json:"isOnboarded"`
-	SessionToken string `json:"sessionToken"`
-	RefreshToken string `json:"refreshToken"`
+	State        *UserState `json:"state"`
+	SessionToken string     `json:"sessionToken"`
+	RefreshToken string     `json:"refreshToken"`
 }
 
 type Mutation struct {
@@ -87,6 +87,10 @@ type UpdatedProfile struct {
 	Website      *string `json:"website,omitempty"`
 	PersonalGoal *string `json:"personalGoal,omitempty"`
 	About        *string `json:"about,omitempty"`
+}
+
+type UserState struct {
+	IsOnboarded bool `json:"isOnboarded"`
 }
 
 type ErrorType string
