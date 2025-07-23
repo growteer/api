@@ -1,26 +1,22 @@
-####################
-# BUILD IMAGE      #
-####################
-FROM alpine:latest AS builder
-WORKDIR /app
+FROM nixos/nix:latest AS builder
 
-RUN apk update && \
-  apk add --no-cache ca-certificates && \
-  mkdir /user && \
-  echo 'nobody:x:65534:65534:nobody:/:' > /user/passwd && \
-  echo 'nobody:x:65534:' > /user/group
+COPY . /tmp/build
 
-####################
-# PRODUCTION IMAGE #
-####################
-FROM scratch AS final
+WORKDIR /tmp/build
 
-EXPOSE 8080
+RUN nix-env -iA nixpkgs.cacert
 
-USER nobody:nobody
+RUN cp /etc/ssl/certs/ca-bundle.crt ca-certificates
+RUN nix --extra-experimental-features "nix-command flakes" build
+RUN mkdir /tmp/nix-store-closure
+RUN cp -R $(nix-store -qR result/) /tmp/nix-store-closure
 
-COPY --from=builder /user/group /user/passwd /etc/
-COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
-COPY ./bin/main .
+FROM scratch
 
-ENTRYPOINT ["/main"]
+WORKDIR /bin
+
+COPY --from=builder /tmp/nix-store-closure /nix/store
+COPY --from=builder /tmp/build/ca-certificates /etc/ssl/certs/ca-certificates.crt
+COPY --from=builder /tmp/build/result/bin/growteer-api .
+
+CMD ["/bin/growteer-api"]
