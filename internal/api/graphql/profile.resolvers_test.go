@@ -12,7 +12,6 @@ import (
 	"github.com/growteer/api/pkg/web3util"
 	"github.com/growteer/api/testing/fixtures"
 	"github.com/growteer/api/testing/mocks/internal_/app/authn"
-	"github.com/growteer/api/testing/testcontainer"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
@@ -65,16 +64,14 @@ const (
 )
 
 func Test_Onboard(t *testing.T) {
-	mongoEnv, terminateDB := testcontainer.StartMongoAndGetDetails(t)
-	defer terminateDB()
-	db := mongodb.NewDB(mongoEnv)
+	db := mongodb.NewDB(config.Mongo)
 
 	t.Run("success", func(t *testing.T) {
-		//given
+		// given
 		did := fixtures.NewDID(t)
 		gqlClient := setupGQLClient(t, did, db)
 
-		//when
+		// when
 		var onboardResult struct{ Onboard model.Profile }
 		err := gqlClient.Post(
 			onboardMutation,
@@ -86,18 +83,18 @@ func Test_Onboard(t *testing.T) {
 			client.Var("country", "US"),
 		)
 
-		//then
+		// then
 		require.NoError(t, err)
 		assert.Equal(t, "John", onboardResult.Onboard.FirstName)
 		assert.Equal(t, "Doe", onboardResult.Onboard.LastName)
 	})
 
 	t.Run("fail, invalid input", func(t *testing.T) {
-		//given
+		// given
 		did := fixtures.NewDID(t)
 		gqlClient := setupGQLClient(t, did, db)
 
-		//when
+		// when
 		var onboardResult struct{ Onboard model.Profile }
 		err := gqlClient.Post(
 			onboardMutation,
@@ -109,7 +106,7 @@ func Test_Onboard(t *testing.T) {
 			client.Var("country", "US"),
 		)
 
-		//then
+		// then
 		require.Error(t, err)
 		assert.Contains(t, err.Error(), "BAD_INPUT")
 		assert.Empty(t, onboardResult.Onboard)
@@ -117,22 +114,20 @@ func Test_Onboard(t *testing.T) {
 }
 
 func Test_Profile(t *testing.T) {
-	mongoEnv, terminateDB := testcontainer.StartMongoAndGetDetails(t)
-	defer terminateDB()
-	db := mongodb.NewDB(mongoEnv)
+	db := mongodb.NewDB(config.Mongo)
 
 	t.Run("success", func(t *testing.T) {
-		//given
+		// given
 		did := fixtures.NewDID(t)
 		gqlClient := setupGQLClient(t, did, db)
 		_ = onboardTestProfile(t, gqlClient)
 
-		//when
+		// when
 		var profileResult struct{ Profile model.Profile }
 		err := gqlClient.Post(profileQuery, &profileResult, client.Var("userDID", did.String()))
 		require.NoError(t, err)
 
-		//then
+		// then
 		assert.Equal(t, "John", profileResult.Profile.FirstName)
 		assert.Equal(t, "Doe", profileResult.Profile.LastName)
 		assert.Contains(t, profileResult.Profile.DateOfBirth, "1990-01-01")
@@ -146,7 +141,7 @@ func Test_Profile(t *testing.T) {
 	})
 
 	t.Run("fail, profile doesn't exist", func(t *testing.T) {
-		//given
+		// given
 		did := fixtures.NewDID(t)
 		gqlClient := setupGQLClient(t, did, db)
 		_ = onboardTestProfile(t, gqlClient)
@@ -154,7 +149,7 @@ func Test_Profile(t *testing.T) {
 		_, altPubKeyBase58 := fixtures.GenerateEd25519KeyPair(t)
 		altDID := web3util.NewDID(web3util.DIDMethodPKH, web3util.NamespaceSolana, altPubKeyBase58)
 
-		//when
+		// when
 		var profileResult struct{ Profile model.Profile }
 		err := gqlClient.Post(
 			profileQuery,
@@ -162,7 +157,7 @@ func Test_Profile(t *testing.T) {
 			client.Var("userDID", altDID.String()),
 		)
 
-		//then
+		// then
 		require.Error(t, err)
 		assert.Contains(t, err.Error(), "NOT_FOUND")
 		assert.Empty(t, profileResult.Profile)
@@ -170,17 +165,15 @@ func Test_Profile(t *testing.T) {
 }
 
 func Test_UpdateProfile(t *testing.T) {
-	mongoEnv, terminateDB := testcontainer.StartMongoAndGetDetails(t)
-	defer terminateDB()
-	db := mongodb.NewDB(mongoEnv)
+	db := mongodb.NewDB(config.Mongo)
 
 	t.Run("success", func(t *testing.T) {
-		//given
+		// given
 		did := fixtures.NewDID(t)
 		gqlClient := setupGQLClient(t, did, db)
 		_ = onboardTestProfile(t, gqlClient)
 
-		//when
+		// when
 		var updateResult struct{ UpdateProfile model.Profile }
 		err := gqlClient.Post(
 			updateProfileMutation,
@@ -193,7 +186,7 @@ func Test_UpdateProfile(t *testing.T) {
 		)
 		require.NoError(t, err)
 
-		//then
+		// then
 		assert.Equal(t, "Jane", updateResult.UpdateProfile.FirstName)
 		assert.Equal(t, "Doe", updateResult.UpdateProfile.LastName)
 		assert.Contains(t, updateResult.UpdateProfile.DateOfBirth, "1990-01-01")
@@ -207,12 +200,12 @@ func Test_UpdateProfile(t *testing.T) {
 	})
 
 	t.Run("fail, profile doesn't exist", func(t *testing.T) {
-		//given
+		// given
 		did := fixtures.NewDID(t)
 		gqlClient := setupGQLClient(t, did, db)
 		_ = onboardTestProfile(t, gqlClient)
 
-		//when
+		// when
 		var updateResult struct{ UpdateProfile model.Profile }
 		err := gqlClient.Post(
 			updateProfileMutation,
@@ -224,7 +217,7 @@ func Test_UpdateProfile(t *testing.T) {
 			client.Var("country", "US"),
 		)
 
-		//then
+		// then
 		require.Error(t, err)
 		assert.Contains(t, err.Error(), "BAD_INPUT")
 		assert.Empty(t, updateResult.UpdateProfile)
@@ -235,7 +228,7 @@ func setupGQLClient(t *testing.T, did *web3util.DID, db *mongo.Database) *client
 	tokenProvider := authn.NewMockTokenProvider(t)
 	tokenProvider.EXPECT().ParseSessionToken(mock.Anything).Return(&jwt.RegisteredClaims{Subject: did.String()}, nil)
 
-	gqlServer := api.NewServer(environment.ServerEnv{HTTPPort: 8080}, db, tokenProvider)
+	gqlServer := api.NewServer(environment.Server{HTTPPort: 8080}, db, tokenProvider)
 	return client.New(gqlServer.Router, client.Path("/query"), client.AddHeader("Authorization", "Bearer "+sessionToken))
 }
 

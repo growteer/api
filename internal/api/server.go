@@ -37,7 +37,7 @@ func (s *GQLServer) Start() {
 	}
 }
 
-func NewServer(env environment.ServerEnv, db *mongo.Database, tokenProvider authn.TokenProvider) *GQLServer {
+func NewServer(env environment.Server, db *mongo.Database, tokenProvider authn.TokenProvider) *GQLServer {
 	resolver := graphql.NewResolver(db, tokenProvider)
 
 	server := handler.New(graphql.NewExecutableSchema(graphql.Config{Resolvers: resolver}))
@@ -62,7 +62,7 @@ func NewServer(env environment.ServerEnv, db *mongo.Database, tokenProvider auth
 	}
 }
 
-func newRouter(env environment.ServerEnv, server *handler.Server, tokenProvider authn.TokenProvider) *chi.Mux {
+func newRouter(env environment.Server, server *handler.Server, tokenProvider authn.TokenProvider) *chi.Mux {
 	router := chi.NewRouter()
 	router.Use(cors.New(cors.Options{
 		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type"},
