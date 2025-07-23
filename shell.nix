@@ -58,7 +58,7 @@ pkgs.mkShell {
     trap 'echo "Stopping MongoDB..."; mongod --quiet --shutdown --dbpath ./data/db' EXIT
 
     echo "Connect to mongodb with:"
-    echo "Connection URI: $MONGODB_URL"
+    echo "Connection URI: $MONGODB_URI"
     echo "Database Name: $MONGODB_DATABASE"
     echo ""
     echo "JWS secret: $JWT_SECRET"

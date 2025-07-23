@@ -3,9 +3,8 @@ package graphql
 import (
 	authnApp "github.com/growteer/api/internal/app/authn"
 	profilesApp "github.com/growteer/api/internal/app/profiles"
-	profilesRepo "github.com/growteer/api/internal/repository/profiles"
-
 	authnRepo "github.com/growteer/api/internal/repository/authn"
+	profilesRepo "github.com/growteer/api/internal/repository/profiles"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 

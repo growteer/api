@@ -1,3 +1,6 @@
+all:
+	@go build -o growteer-api ./cmd/growteer-api/...
+
 .PHONY: lint
 lint:
 	@golangci-lint run
