@@ -14,10 +14,6 @@ permissions:
   contents: read
   pull-requests: write
 
-env:
-  GOPATH: ${{ github.workspace }}/../go
-  GO_VERSION: 1.23
-
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -26,32 +22,26 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Set up Go
-        uses: actions/setup-go@v5
+      - uses: cachix/install-nix-action@v31
         with:
-          go-version: ${{ env.GO_VERSION }}
+          nix_path: nixpkgs=channel:nixos-unstable
 
-      - name: Install Task
-        uses: arduino/setup-task@v2
+      - name: Build
+        run: nix build
 
       - name: Lint
-        run: task lint
+        run: nix develop -c make lint
 
       - name: Test
-        run: task test-with-reports
+        run: nix develop -c make test
 
-      - name: Publish Test Results
-        if: success() || failure()
-        uses: dorny/test-reporter@v1.9.1
+      - uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
         with:
-          name: Unit & Integration Tests
+          name: test-results
           path: reports/junit-report.xml
-          reporter: java-junit
 
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-
-      - name: Build
-        run: task build

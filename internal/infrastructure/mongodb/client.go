@@ -12,9 +12,8 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/readpref"
 )
 
-func NewDB(env environment.MongoEnv) *mongo.Database {
-	uri := fmt.Sprintf("mongodb://%s:%s@%s:%d/?ssl=%t", env.User, env.Password, env.Host, env.Port, env.SSL)
-	clientOptions := options.Client().ApplyURI(uri).SetTimeout(5 * time.Second)
+func NewDB(env environment.Mongo) *mongo.Database {
+	clientOptions := options.Client().ApplyURI(env.URI).SetTimeout(5 * time.Second)
 
 	client, err := mongo.Connect(context.Background(), clientOptions)
 	if err != nil {
@@ -30,5 +29,5 @@ func NewDB(env environment.MongoEnv) *mongo.Database {
 
 	slog.Info("connected to mongodb")
 
-	return client.Database(env.DBName)
+	return client.Database(env.Database)
 }
