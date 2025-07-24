@@ -27,9 +27,12 @@
         callPackage = pkgs.darwin.apple_sdk_11_0.callPackage or pkgs.callPackage;
 
       in
-      {
+      rec {
         packages.default = callPackage ./. {
           inherit (gomod2nix.legacyPackages.${system}) buildGoApplication;
+        };
+        packages.container = callPackage ./container.nix {
+          package = packages.default;
         };
         devShells.default = callPackage ./shell.nix {
           inherit (gomod2nix.legacyPackages.${system}) mkGoEnv gomod2nix;

@@ -18,4 +18,8 @@ buildGoApplication {
   src = ./.;
   subPackages = [ "cmd/growteer-api" ];
   modules = ./gomod2nix.toml;
+
+  CGO_ENABLED = 0;
+
+  ldflags = [ "-s -w" ];
 }
