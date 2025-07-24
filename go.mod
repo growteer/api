@@ -17,6 +17,7 @@ require (
 	github.com/mr-tron/base58 v1.2.0
 	github.com/rs/cors v1.11.1
 	github.com/stretchr/testify v1.10.0
+	github.com/test-go/testify v1.1.4
 	github.com/vektah/gqlparser/v2 v2.5.20
 	github.com/vrischmann/envconfig v1.3.0
 	go.mongodb.org/mongo-driver v1.17.1

@@ -1,6 +1,7 @@
 package api
 
 import (
+	"context"
 	"fmt"
 	"log/slog"
 	"net/http"
@@ -21,7 +22,7 @@ import (
 )
 
 type GQLServer struct {
-	*handler.Server
+	server http.Server
 	Router *chi.Mux
 	port   int
 }
@@ -29,40 +30,47 @@ type GQLServer struct {
 func (s *GQLServer) Start() {
 	slog.Info(fmt.Sprintf("connect on port %d for GraphQL playground", s.port))
 
-	err := http.ListenAndServe(fmt.Sprintf(":%d", s.port), s.Router)
-	if err != nil && err != http.ErrServerClosed {
-		slog.Error("server unexpectedly shut down", "error", err)
-	} else {
-		slog.Info("server shut down gracefully")
-	}
+	go func() {
+		if err := s.server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			slog.Error("server unexpectedly shut down", "error", err)
+		} else {
+			slog.Info("server shut down gracefully")
+		}
+	}()
+}
+
+func (s *GQLServer) Shutdown(ctx context.Context) error {
+	return s.server.Shutdown(ctx)
 }
 
 func NewServer(env environment.Server, db *mongo.Database, tokenProvider authn.TokenProvider) *GQLServer {
 	resolver := graphql.NewResolver(db, tokenProvider)
 
-	server := handler.New(graphql.NewExecutableSchema(graphql.Config{Resolvers: resolver}))
-	server.SetErrorPresenter(gqlutil.PresentError)
-	server.SetRecoverFunc(gqlutil.Recover)
+	handler := handler.New(graphql.NewExecutableSchema(graphql.Config{Resolvers: resolver}))
+	handler.SetErrorPresenter(gqlutil.PresentError)
+	handler.SetRecoverFunc(gqlutil.Recover)
 
-	server.AddTransport(transport.Options{})
-	server.AddTransport(transport.GET{})
-	server.AddTransport(transport.POST{})
+	handler.AddTransport(transport.Options{})
+	handler.AddTransport(transport.GET{})
+	handler.AddTransport(transport.POST{})
 
-	server.SetQueryCache(lru.New[*ast.QueryDocument](1000))
+	handler.SetQueryCache(lru.New[*ast.QueryDocument](1000))
 
-	server.Use(extension.Introspection{})
-	server.Use(extension.AutomaticPersistedQuery{
+	handler.Use(extension.Introspection{})
+	handler.Use(extension.AutomaticPersistedQuery{
 		Cache: lru.New[string](100),
 	})
 
+	router := newRouter(env, handler, tokenProvider)
+
 	return &GQLServer{
-		Server: server,
-		Router: newRouter(env, server, tokenProvider),
+		Router: router,
+		server: http.Server{Addr: fmt.Sprintf(":%d", env.HTTPPort), Handler: router},
 		port:   env.HTTPPort,
 	}
 }
 
-func newRouter(env environment.Server, server *handler.Server, tokenProvider authn.TokenProvider) *chi.Mux {
+func newRouter(env environment.Server, handler *handler.Server, tokenProvider authn.TokenProvider) *chi.Mux {
 	router := chi.NewRouter()
 	router.Use(cors.New(cors.Options{
 		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type"},
@@ -73,7 +81,7 @@ func newRouter(env environment.Server, server *handler.Server, tokenProvider aut
 
 	router.Use(authn.UserSessionMiddleware(tokenProvider))
 	router.Handle("/", playground.Handler("GraphQL playground", "/query"))
-	router.Handle("/query", server)
+	router.Handle("/query", handler)
 
 	return router
 }
