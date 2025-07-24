@@ -1,5 +1,5 @@
 all:
-	@go build -o growteer-api ./cmd/growteer-api/...
+	@CGO_ENABLED=0 go build -ldflags '-s -w' -o growteer-api ./cmd/growteer-api/...
 
 .PHONY: lint
 lint:
