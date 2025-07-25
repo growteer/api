@@ -1,3 +1,7 @@
+.PHONY: all
+all:
+	@CGO_ENABLED=0 go build -ldflags '-s -w' -o growteer-api ./cmd/growteer-api/...
+
 .PHONY: lint
 lint:
 	@golangci-lint run

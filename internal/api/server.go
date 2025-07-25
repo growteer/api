@@ -63,9 +63,12 @@ func NewServer(env environment.Server, db *mongo.Database, tokenProvider authn.T
 
 	router := newRouter(env, handler, tokenProvider)
 
+	logHandler := slog.Default().Handler()
+	logger := slog.NewLogLogger(logHandler, slog.LevelError)
+
 	return &GQLServer{
 		Router: router,
-		server: http.Server{Addr: fmt.Sprintf(":%d", env.HTTPPort), Handler: router},
+		server: http.Server{Addr: fmt.Sprintf(":%d", env.HTTPPort), Handler: router, ErrorLog: logger},
 		port:   env.HTTPPort,
 	}
 }

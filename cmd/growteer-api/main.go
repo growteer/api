@@ -1,10 +1,12 @@
 package main
 
 import (
+	"context"
 	"log/slog"
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 
 	"github.com/growteer/api/internal/api"
 	"github.com/growteer/api/internal/infrastructure/environment"
@@ -12,7 +14,14 @@ import (
 	"github.com/growteer/api/internal/infrastructure/tokens"
 )
 
+func configureLogging() {
+	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
+	slog.SetDefault(logger)
+}
+
 func main() {
+	configureLogging()
+
 	env := environment.Load()
 	sig := make(chan os.Signal, 1)
 	signal.Notify(sig, syscall.SIGTERM, os.Interrupt)
@@ -26,5 +35,14 @@ func main() {
 
 	<-sig
 
-	slog.Info("shutting down")
+	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
+	defer cancel()
+
+	if err := server.Shutdown(ctx); err != nil {
+		slog.Error("unable to shutdown gracefully", "err", err)
+
+		os.Exit(1)
+	}
+
+	slog.Info("shutting down...")
 }

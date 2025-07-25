@@ -19,6 +19,9 @@ buildGoApplication {
   subPackages = [ "cmd/growteer-api" ];
   modules = ./gomod2nix.toml;
 
+  # NOTE (c.nicola): disabled, run `nix develop -c make test` instead
+  doCheck = false;
+
   CGO_ENABLED = 0;
 
   ldflags = [ "-s -w" ];
