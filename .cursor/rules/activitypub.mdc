@@ -1,0 +1,25 @@
+---
+globs: apps/federation-edge/**,apps/workers/**
+alwaysApply: false
+---
+
+# ActivityPub edge rules
+
+## Separate surface
+- ActivityPub endpoints belong ONLY in `apps/federation-edge`.
+
+## Store-first, process async
+- Incoming inbox requests:
+  1) verify request as needed (signatures/headers)
+  2) persist the raw activity + metadata
+  3) enqueue a job to process it
+- Outgoing activities:
+  1) persist activity/outbox record
+  2) enqueue delivery jobs (per destination/host)
+
+## Never block user requests on federation delivery
+- Remote delivery is async only (retries/backoff handled by worker).
+
+## Idempotency & dedupe
+- Inbox processing must be idempotent.
+- Delivery worker must dedupe attempts per (activity, destination).

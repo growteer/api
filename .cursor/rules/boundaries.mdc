@@ -1,0 +1,39 @@
+---
+globs: apps/**/*.ts,packages/**/*.ts
+alwaysApply: false
+---
+
+# Boundaries & dependencies
+
+## Bounded contexts
+- Identity
+- SocialGraph
+- Content
+- Messaging (DMs)
+- ActivityPub
+- Blockchain (Monad)
+- Moderation
+- Media
+
+## Dependency rules
+- Modules do NOT import internal files from other modules.
+- Cross-module interaction happens via:
+  1) exported ports/interfaces (stable)
+  2) domain events
+  3) jobs for async work
+
+## “Direct calls” allowed (v1)
+- Direct function calls across modules are allowed ONLY through exported ports.
+- Never reach into another module’s Prisma models directly.
+
+## Enforce a thin edge
+- GraphQL resolvers and HTTP controllers do:
+  - authn/authz
+  - input validation
+  - call command/query handler
+  - map result to API shape
+- No business logic in resolvers/controllers.
+
+## Naming conventions
+- Commands: imperative verbs (`PublishPost`, `FollowUser`, `SendMessage`)
+- Queries: nouns/questions (`GetHomeFeed`, `GetThread`, `SearchUsers`)

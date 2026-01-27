@@ -1,0 +1,55 @@
+---
+alwaysApply: true
+---
+
+# Architecture North Star (v1)
+
+These rules are mandatory for all code in this repository.
+
+## Runtime & structure
+- This project is a **single NestJS application** (one `src/main.ts` entrypoint).
+- We are building a **modular monolith**:
+  - One codebase
+  - One database
+  - Clear internal module boundaries
+- Business logic lives in bounded-context modules under `src/modules/*`.
+- API layers and workers are adapters/orchestration only:
+  - `src/api/*` (GraphQL + ActivityPub HTTP)
+  - `src/workers/*` (background job runner + handlers)
+
+## API surfaces
+- The **product API is GraphQL-first**.
+- There are **two separate GraphQL endpoints**:
+  - Public API (for PWA/mobile clients)
+  - Admin API (for ops/moderation/admin)
+- Avoid designing a RESTful product API.
+- **ActivityPub + WebFinger are implemented as HTTP endpoints** under `src/api/federation-edge/*`.
+
+## CQRS-inspired application structure
+- GraphQL **Queries are reads** (no side effects).
+- GraphQL **Mutations are commands** (single responsibility).
+- Resolvers/controllers must be thin adapters calling command/query handlers.
+
+## Idempotency
+- State-changing mutations MUST accept an `idempotencyKey`.
+- The server MUST enforce idempotency scoped by:
+  - actor/user
+  - mutation name
+  - idempotency key
+- Reusing the same `idempotencyKey` with a different payload must return a conflict-style error.
+
+## Data & ORM
+- Use **Postgres + Prisma**.
+- No module may write to another module’s tables except through exported ports/use-cases.
+- Never access another module’s persistence layer directly.
+
+## Async work (v1)
+- Do NOT introduce RabbitMQ/Kafka/NATS in v1 unless explicitly requested.
+- Async work is implemented via a **Postgres-backed jobs table + worker runner** (`src/workers/*`).
+- Any work involving external network calls (e.g., ActivityPub delivery, blockchain indexing) must run as a job.
+
+## Caching (v1)
+- Do NOT introduce Redis or other caching systems in v1 unless explicitly requested.
+
+## If uncertain
+- Propose up to 2 alternatives and pick the one most aligned with this file.

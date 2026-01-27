@@ -1,0 +1,38 @@
+---
+alwaysApply: true
+---
+
+# General Rules & Best Practices
+
+**For complete problem-solving methodology**, see `problem-solving` skill.
+
+## Tech Stack
+- **Language**: TypeScript (strict mode), see `coding-standards` skill for best practices
+- **Package Manager**: pnpm
+- **Database**: Postgres, see `supabase-postgres-best-practices`skill for best practices
+- **API**: GraphQL for product APIs, see `graphql-architect` skill for best practices
+
+## Core Libraries
+
+- **Database Layer/ORM**: prisma
+- **Logging**: pino
+
+## File Organization
+
+- **Avoid barrel files** - Don't use `index.ts` that re-exports from multiple files
+
+## Code Generation
+
+- **Generate Code from GraphQL Schema**: Utilize `@nestjs/graphql` to generate TypeScript code every time a schema changed
+
+## Observability
+
+- Write logs as structured json by default
+- Logs must include `timestamp`, `message`, `level` (error, warn, info, debug)
+- All incoming and outgoing network calls must be instrumented with OpenTelemetry traces, propagating existing ones
+- Whenever available, OpenTelemetry traceId and spanId must be included as separate log fields
+
+## Testing
+
+- Use jest for unit and integration tests
+- Use testcontainers for simulating infrastructure like a database

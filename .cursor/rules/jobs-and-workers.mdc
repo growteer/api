@@ -1,0 +1,30 @@
+---
+globs: apps/workers/**,packages/**
+alwaysApply: false
+---
+
+# Jobs & workers (v1)
+
+## When to create a job
+Create a job if:
+- it involves external network calls
+- it must survive restarts/deploys
+- it can be retried safely
+Examples:
+- ActivityPub delivery
+- ActivityPub inbox processing
+- Monad indexing / reconciliation
+- DM notification fanout
+
+## Job execution model
+- Use a Postgres jobs table.
+- Workers claim jobs with locking (e.g. SELECT ... FOR UPDATE SKIP LOCKED).
+- Jobs support:
+  - attempts + maxAttempts
+  - nextRunAt (backoff)
+  - lastError
+  - correlationId
+
+## Reliability
+- Prefer “write DB state + enqueue job” in the same transaction when correctness matters.
+- Avoid in-process fire-and-forget for anything important.
